@@ -1954,6 +1954,15 @@ FLUX delivers 12 ready working models on a dual-layer FR4 PCB, prebuilt firmware
     <div class="wa-label">Ask a question</div>
   </a>
 
+  <!-- Netlify form registration -->
+  <form name="flux-feature-requests" method="POST" netlify data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="flux-feature-requests">
+    <input type="text" name="request">
+    <input type="text" name="user_level">
+    <input type="text" name="contact">
+    <input type="text" name="bot-field">
+  </form>
+
   <script>
     function toggleFaq(btn) {
       const item = btn.closest('.faq-item');
