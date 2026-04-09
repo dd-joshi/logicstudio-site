@@ -128,6 +128,9 @@
     #feature-request-container .form-actions{margin-top:4px}
     #feature-request-container button{padding:10px 18px;background:var(--accent);color:#fff;border:none;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer}
     #feature-request-container button:hover{background:var(--accent2)}
+    #feature-request-status{min-height:18px;margin-top:8px;color:var(--dim);font-size:12px;line-height:1.5}
+    #feature-request-status.ok{color:var(--success)}
+    #feature-request-status.error{color:var(--error)}
     #feature-request-container footer{margin-top:10px}
     #feature-request-container footer p{font-size:12px;color:var(--dim);line-height:1.5}
     .hp-field{position:absolute;left:-9999px;opacity:0;pointer-events:none}
@@ -195,7 +198,7 @@
             <summary>Talk to the Builder</summary>
             <div class="fold-body">
               <section id="feature-request-container">
-                <form name="flux-feature-requests" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                <form id="featureRequestForm" name="flux-feature-requests" method="POST" action="./" data-netlify="true" netlify-honeypot="bot-field">
                   <input type="hidden" name="form-name" value="flux-feature-requests">
                   <p class="hp-field">
                     <label>Do not fill this field if you are human: <input name="bot-field"></label>
@@ -221,6 +224,7 @@
                   <div class="form-actions">
                     <button type="submit">Submit</button>
                   </div>
+                  <p id="feature-request-status" role="status" aria-live="polite"></p>
                   <footer>
                     <p>Prioritized by community demand. Requires FLUX hardware.</p>
                   </footer>
@@ -444,6 +448,8 @@
     const progressNote = $("progressNote");
     const logBox = $("logBox");
     const flashBtn = $("flashBtn");
+    const featureRequestForm = $("featureRequestForm");
+    const featureRequestStatus = $("feature-request-status");
 
     let projectMenu = PROJECT_INDEX.map(({ id }) => ({ id, name: `function${Number(id)}`, tag: "Module" }));
     let selected = defaultProjectData(PROJECT_INDEX[0].id);
@@ -1071,6 +1077,49 @@
         el.addEventListener("click", () => selectProject(el.dataset.id));
       });
       projectCount.textContent = `${PROJECT_INDEX.length} Projects`;
+    }
+
+    function setFeatureRequestStatus(message, state = "") {
+      if (!featureRequestStatus) return;
+      featureRequestStatus.textContent = message;
+      featureRequestStatus.classList.toggle("ok", state === "ok");
+      featureRequestStatus.classList.toggle("error", state === "error");
+    }
+
+    if (featureRequestForm) {
+      featureRequestForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const submitButton = featureRequestForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton ? submitButton.textContent : "";
+
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = "Sending...";
+        }
+        setFeatureRequestStatus("Sending...");
+
+        try {
+          const response = await fetch("/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(new FormData(featureRequestForm)).toString()
+          });
+
+          if (!response.ok) throw new Error(`Form submit failed: ${response.status}`);
+
+          featureRequestForm.reset();
+          setFeatureRequestStatus("Sent. Thank you - the builder will review this.", "ok");
+        } catch (error) {
+          console.error(error);
+          setFeatureRequestStatus("Could not send. Please try again, or message us on WhatsApp.", "error");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText || "Submit";
+          }
+        }
+      });
     }
 
     document.querySelectorAll(".tab-btn").forEach((btn) => {
