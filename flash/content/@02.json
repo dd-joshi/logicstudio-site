@@ -1,0 +1,125 @@
+{
+    "id":  "02",
+    "flow":  {
+                 "type":  "SIGNAL-\u003eRESPONSE",
+                 "order":  2
+             },
+    "name":  {
+                 "concept":  "Light level -\u003e inverse brightness response (Project 2)",
+                 "alias":  "Auto Night Light"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "light-dependent resistor (LDR)",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The LEDs get brighter as the room gets darker. Pressing the button changes the light color between four preset shades.",
+                  "whyItWorks":  "The board reads the room light level and smooths it so the LEDs do not jump around with every tiny change. It then flips the response so less light in the room means more light from the LEDs. A curved brightness scale makes the change look more natural to your eyes.",
+                  "keyInsight":  "A sensor signal does not need to control output directly because it can be reshaped to feel more natural and useful.",
+                  "realWorld":  "This logic is used in night lights, phone screen auto-brightness, and smart lighting that adapts to the environment."
+              },
+    "system":  {
+                   "input":  "An LDR senses how bright or dark the room is, and a push button changes the color preset.",
+                   "process":  "The board smooths the light reading and converts it into an inverse brightness level.",
+                   "output":  "The LED strip glows brighter in darkness and dimmer in bright light."
+               },
+    "howItWorks":  {
+                       "steps":  "The system watches the room light level all the time.\nThe LEDs brighten when the room gets darker and dim when the room gets brighter.\nThe light change happens smoothly instead of jumping suddenly.\nEach button press switches the LEDs to a different color preset.\nThe strip can turn fully off when the room is already bright enough.",
+                       "variables":  [
+                                         {
+                                             "name":  "rawLDR",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "smoothedLDR",
+                                             "range":  "490-3000 typical"
+                                         },
+                                         {
+                                             "name":  "outputBri",
+                                             "range":  "0-255"
+                                         },
+                                         {
+                                             "name":  "currentPreset",
+                                             "range":  "0-3"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "All 7 LEDs show the selected color and fade brighter in darkness and dimmer in bright light.",
+                                   "buzzer":  "There is no buzzer sound in the current code."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the raw light reading, the smoothed light reading, and the output brightness so students can compare the sensor value, the cleaned-up value, and the final LED response.",
+                                 "parameters":  [
+                                                    "input_value",
+                                                    "process_val",
+                                                    "output_level"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 via USB and power it on.",
+                              "Flash project firmware from the Flash \u0026 Play tab.",
+                              "Cover or uncover the LDR to change the light level.",
+                              "Press the button to cycle through the color presets.",
+                              "Observe the LED brightness and serial data behavior."
+                          ],
+                "expected":  "The LEDs glow brighter in darker conditions, dim in brighter conditions, and change color each time the button is pressed."
+            },
+    "explore":  {
+                    "tune":  [
+                                 {
+                                     "parameter":  "LDR_FILTER_ALPHA",
+                                     "effect":  "Higher values make the LEDs respond faster, while lower values make brightness changes smoother."
+                                 },
+                                 {
+                                     "parameter":  "CURVE_EXP",
+                                     "effect":  "Higher values make brightness rise more strongly in darker conditions."
+                                 },
+                                 {
+                                     "parameter":  "LDR_DARK",
+                                     "effect":  "Changing this shifts what the system treats as a dark room."
+                                 },
+                                 {
+                                     "parameter":  "LDR_BRIGHT",
+                                     "effect":  "Changing this shifts what the system treats as a bright room."
+                                 }
+                             ],
+                    "experiments":  [
+                                        {
+                                            "title":  "Test darkness versus brightness",
+                                            "baseline":  "Start with the sensor in normal room light.",
+                                            "variable":  "Slowly cover the LDR and then expose it to brighter light again.",
+                                            "observation":  "The LEDs brighten as the sensor gets darker and dim as it gets brighter."
+                                        },
+                                        {
+                                            "title":  "Compare smooth and fast response",
+                                            "baseline":  "Use the sensor under a steady lamp.",
+                                            "variable":  "Change the filter value in small steps and repeat the same hand movement over the LDR.",
+                                            "observation":  "A stronger smoothing effect makes the LED fade more steadily but react more slowly."
+                                        },
+                                        {
+                                            "title":  "Explore the four night-light colors",
+                                            "baseline":  "Keep the room at a similar darkness level.",
+                                            "variable":  "Press the button to cycle through all four presets.",
+                                            "observation":  "The brightness behavior stays the same while only the color tone changes."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "logicFlow":  "Read ambient light -\u003e Smooth the reading -\u003e Convert darkness into brightness -\u003e Apply selected color preset -\u003e Update LEDs and print telemetry",
+                 "pseudocode":  "Read light sensor -\u003e Filter value -\u003e Map to inverse brightness -\u003e Set LED color and brightness -\u003e Print data"
+             }
+}

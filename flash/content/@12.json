@@ -1,0 +1,117 @@
+{
+    "id":  "12",
+    "flow":  {
+                 "type":  "CALIBRATION-\u003eSIGNAL_ANALYSIS-\u003eFEEDBACK",
+                 "order":  12
+             },
+    "name":  {
+                 "concept":  "The system learns a reference pitch and then shows whether the current sound is lower, higher, or centered around that target.",
+                 "alias":  "Swar Purity Trainer"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "I2S microphone",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "You first teach the system a reference note by pressing the button and holding a steady pitch. After that, the LEDs show whether your current note is too low, too high, or in tune.",
+                  "whyItWorks":  "The microphone captures sound, and the code uses frequency analysis to estimate the strongest pitch in the signal. That measured pitch is compared with the saved reference pitch from calibration. The difference between the two controls where the light appears on the LED strip. Extra smoothing and stability checks help the display respond to real singing or instrument notes instead of jumping wildly because of tiny measurement noise.",
+                  "keyInsight":  "A system can first learn a reference and then compare future inputs against it to give meaningful feedback.",
+                  "realWorld":  "This same idea is used in music tuners, voice training tools, machine calibration systems, and quality control setups that compare live measurements with a saved target.",
+                  "crossDomainAnalogy":  "Think of throwing a ball at a target. First you decide where the center of the target is. Then every throw is judged as left, right, or centered. Here, the calibrated note becomes the center target, and each new pitch is measured as below, above, or on that musical target."
+              },
+    "system":  {
+                   "input":  "An I2S microphone listens to pitch, and a push button starts calibration of the reference note.",
+                   "process":  "The board performs frequency analysis, estimates the dominant pitch, smooths the result, and compares it to the calibrated target frequency.",
+                   "output":  "The LED strip shows whether the detected pitch is flat, sharp, or in tune."
+               },
+    "howItWorks":  {
+                       "steps":  "Pressing the button starts calibration, and you hold a steady reference note.\nThe system measures several sound frames and saves the average valid frequency as the target.\nDuring use, the microphone keeps analyzing incoming sound to estimate the current pitch.\nThe system compares the current pitch with the target and maps the pitch difference onto the LED strip.\nIf the note is close and stable, the center area turns green, while lower and higher notes appear on different sides with different colors.",
+                       "variables":  [
+                                         {
+                                             "name":  "targetFreq",
+                                             "range":  "depends on calibration note"
+                                         },
+                                         {
+                                             "name":  "instantFreq",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "smoothedFreq",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "diffHz",
+                                             "range":  "negative or positive around target"
+                                         },
+                                         {
+                                             "name":  "stabilityScore",
+                                             "range":  "0.0-1.0"
+                                         },
+                                         {
+                                             "name":  "pos",
+                                             "range":  "0.0-6.0"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "Before calibration, all LEDs show blue to indicate readiness. During calibration, the strip turns white. After calibration, the LED position moves left or right depending on pitch difference. Notes below target show red, notes above target show purple, and stable in-tune notes glow green near the center. If silence continues for a while, the LEDs slowly fade.",
+                                   "buzzer":  "There is no buzzer behavior in this project."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output reports the detected input frequency, pitch difference from the target, LED position, and stability percentage so students can connect pitch analysis to the feedback display.",
+                                 "parameters":  [
+                                                    "IN",
+                                                    "DIFF",
+                                                    "POSm",
+                                                    "STAB"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Press the button to begin calibration.",
+                              "Hold a steady reference note or sing the target swar clearly into the microphone.",
+                              "After calibration completes, produce notes above, below, and near the target pitch.",
+                              "Watch the LED position and color change with your tuning accuracy."
+                          ],
+                "expected":  "The system learns a reference note during calibration and then shows whether later notes are lower, higher, or centered around that target. Stable in-tune notes appear as green near the middle."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare flat, sharp, and centered notes",
+                                            "baseline":  "Calibrate the system with one steady reference note.",
+                                            "variable":  "Then sing or play a note slightly below, slightly above, and then close to the target.",
+                                            "observation":  "The LED indicator moves to different positions and colors depending on whether the pitch is low, high, or in tune."
+                                        },
+                                        {
+                                            "title":  "Test steady versus shaky singing",
+                                            "baseline":  "Start with a note close to the target.",
+                                            "variable":  "First hold it steadily, then intentionally wobble the pitch.",
+                                            "observation":  "Stable singing improves the stability score and makes the in-tune indication stronger."
+                                        },
+                                        {
+                                            "title":  "Observe calibration importance",
+                                            "baseline":  "Calibrate with one reference note and test the display.",
+                                            "variable":  "Recalibrate using a different note and repeat the same singing test.",
+                                            "observation":  "The center target moves because the system always judges pitch relative to the saved calibration note."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Press button to calibrate target note -\u003e Capture microphone audio -\u003e Estimate dominant frequency -\u003e Smooth the detected pitch -\u003e Compare it with target frequency -\u003e Map pitch difference to LED position and color -\u003e Print telemetry"
+             }
+}

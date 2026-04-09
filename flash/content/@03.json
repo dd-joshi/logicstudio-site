@@ -1,0 +1,139 @@
+{
+    "id":  "03",
+    "flow":  {
+                 "type":  "SIGNAL-\u003eRESPONSE",
+                 "order":  3
+             },
+    "name":  {
+                 "concept":  "Light level -\u003e pitch and LED bar response (Project 3)",
+                 "alias":  "Optical Theremin"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "light-dependent resistor (LDR)",
+                                      "push button",
+                                      "buzzer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "Moving more or less light onto the sensor changes the sound pitch and the LED bar length. Pressing the button switches between a smooth pitch mode and a note-based music mode.",
+                  "whyItWorks":  "The board turns the light reading into a position on a scale from low to high, like sliding your finger along a ruler. In one mode that position gives a continuous pitch, and in the other it snaps to safe musical notes. The reading is smoothed first so the sound and LEDs do not jitter too much from tiny light changes.",
+                  "keyInsight":  "A single sensor can control different kinds of output just by changing the mapping rule.",
+                  "realWorld":  "This same idea appears in touchless instruments, gesture-controlled devices, and sensor systems that convert movement or light into sound and visual feedback."
+              },
+    "system":  {
+                   "input":  "An LDR senses the light level, and a push button changes the sound mode.",
+                   "process":  "The board smooths and scales the light reading, then maps it to either a continuous pitch or a pentatonic note.",
+                   "output":  "A buzzer changes pitch and the LED strip shows a matching bar level."
+               },
+    "howItWorks":  {
+                       "steps":  "The system watches the light level on the sensor and turns it into a control position.\nThe buzzer changes pitch as the light level changes.\nThe LED strip fills like a bar to show how high the current position is.\nEach button press switches between smooth pitch control and musical note steps.\nIf the light level is extremely low, the sound stops and the LEDs turn off.",
+                       "variables":  [
+                                         {
+                                             "name":  "ldrVal",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "pos",
+                                             "range":  "0.00-1.00"
+                                         },
+                                         {
+                                             "name":  "freq",
+                                             "range":  "262-4800 typical"
+                                         },
+                                         {
+                                             "name":  "mode",
+                                             "range":  "0-1"
+                                         },
+                                         {
+                                             "name":  "ldrMin",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "ldrMax",
+                                             "range":  "0-4095"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "The LEDs fill as a green bar in linear mode or a magenta bar in pentatonic mode, with more LEDs lighting as the sensed light level rises.",
+                                   "buzzer":  "The buzzer plays a higher or lower pitch based on light level, and it gives a short confirmation beep when the mode changes."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the LDR reading, the normalized position, and the output frequency so students can see how sensor input becomes a sound value.",
+                                 "parameters":  [
+                                                    "Input_LDR",
+                                                    "Normalized_Pos",
+                                                    "Output_Freq"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect ESP32 via USB and power it on.",
+                              "Flash project firmware from the Flash \u0026 Play tab.",
+                              "Wait a few seconds while the sensor calibrates to the current light range.",
+                              "Change the light on the LDR by moving your hand or a light source.",
+                              "Press the button to switch between linear and pentatonic modes.",
+                              "Observe the buzzer pitch, LED bar, and serial data behavior."
+                          ],
+                "expected":  "Changing light on the sensor changes the buzzer pitch and LED bar level, and the button switches between smooth and note-based sound modes."
+            },
+    "explore":  {
+                    "tune":  [
+                                 {
+                                     "parameter":  "LDR_SMOOTH",
+                                     "effect":  "Higher values make the response faster, while lower values make the sound and LEDs steadier."
+                                 },
+                                 {
+                                     "parameter":  "FREQ_MIN",
+                                     "effect":  "Higher values raise the lowest pitch in linear mode."
+                                 },
+                                 {
+                                     "parameter":  "FREQ_MAX",
+                                     "effect":  "Higher values raise the highest pitch in linear mode."
+                                 },
+                                 {
+                                     "parameter":  "NOTE_HYSTERESIS",
+                                     "effect":  "Higher values reduce note jumping but make note changes less sensitive."
+                                 },
+                                 {
+                                     "parameter":  "BUZZER_OCTAVE_SHIFT",
+                                     "effect":  "Higher values shift the whole sound range upward."
+                                 }
+                             ],
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare smooth pitch and note steps",
+                                            "baseline":  "Start in linear mode with normal room light on the sensor.",
+                                            "variable":  "Move your hand slowly over the LDR and then press the button to try the other mode.",
+                                            "observation":  "Linear mode changes pitch smoothly, while pentatonic mode jumps between musical notes."
+                                        },
+                                        {
+                                            "title":  "Watch calibration affect control range",
+                                            "baseline":  "Restart the board once in steady light.",
+                                            "variable":  "Restart again and deliberately show the sensor both very bright and very dim light during calibration.",
+                                            "observation":  "A wider calibration range gives a broader and more useful pitch response."
+                                        },
+                                        {
+                                            "title":  "Test the mute point",
+                                            "baseline":  "Let the system run after calibration in normal light.",
+                                            "variable":  "Gradually block more light from reaching the LDR.",
+                                            "observation":  "The buzzer and LEDs stop when the reading falls near the lowest learned light level."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "logicFlow":  "Read light sensor -\u003e Smooth and normalize reading -\u003e Choose linear or pentatonic mapping -\u003e Drive buzzer pitch and LED bar -\u003e Print telemetry",
+                 "pseudocode":  "Read light -\u003e Scale value -\u003e Map to pitch -\u003e Show bar on LEDs -\u003e Print data"
+             }
+}

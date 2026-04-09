@@ -1,0 +1,119 @@
+{
+    "id":  "11",
+    "flow":  {
+                 "type":  "SIGNAL-\u003eVISUALIZATION",
+                 "order":  11
+             },
+    "name":  {
+                 "concept":  "Sound amplitude is measured and turned into a live visual display on the LEDs.",
+                 "alias":  "VU Meter"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "I2S microphone",
+                                      "push button",
+                                      "buzzer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The system listens to sound and turns loudness into moving light patterns. Pressing the button changes the display style without changing the measured sound itself.",
+                  "whyItWorks":  "The microphone signal is converted into a volume level, then smoothed so the LEDs do not react too harshly to tiny changes. The system also adjusts its own ceiling level over time, which helps it stay useful in quieter or louder environments. That means the display can still respond well even when the room conditions change. Different visual styles then map the same sound level into different LED patterns.",
+                  "keyInsight":  "One input signal can be visualized in many ways, and adaptive scaling helps the display stay readable across changing conditions.",
+                  "realWorld":  "This same idea is used in audio mixers, music visualizers, recording meters, and dashboards that turn sensor values into human-friendly visual feedback.",
+                  "crossDomainAnalogy":  "Think of a thermometer that can be shown as a number, a colored bar, or a moving dial. The temperature itself stays the same, but the display style changes how people understand it. Here, sound loudness stays the same, but the LEDs can present it in several visual forms."
+              },
+    "system":  {
+                   "input":  "An I2S microphone measures sound level, and a push button changes the visual style.",
+                   "process":  "The board calculates volume, smooths it, adapts the usable range, and converts the result into a normalized LED level.",
+                   "output":  "The LED strip shows sound intensity in different animated styles, and the buzzer gives short feedback during style selection."
+               },
+    "howItWorks":  {
+                       "steps":  "The system reads sound from the microphone and calculates how strong the audio signal is.\nIt smooths the volume so the display is easier to read.\nAn adaptive ceiling changes over time so the meter still works in both quieter and louder conditions.\nThe button cycles through four display styles that visualize the same sound in different ways.\nThe LEDs update continuously, and a short buzzer pattern confirms the chosen style.",
+                       "variables":  [
+                                         {
+                                             "name":  "rawVol",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "smoothedVol",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "adaptiveCeiling",
+                                             "range":  "90.0-1200.0"
+                                         },
+                                         {
+                                             "name":  "fillRatio",
+                                             "range":  "0.0-1.0"
+                                         },
+                                         {
+                                             "name":  "visualStyle",
+                                             "range":  "0-3"
+                                         },
+                                         {
+                                             "name":  "peakLevelLeds",
+                                             "range":  "0.0-7.0"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "The LEDs visualize sound in four styles: a growing bar, a center-out pattern, an aurora-like glow, or an EDM-inspired moving effect. Louder sound usually lights more LEDs or increases intensity. Peak hold and clip indication add extra visual feedback.",
+                                   "buzzer":  "The buzzer sounds short fixed-tone pulses during style feedback, with the number of flashes matching the selected style."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the current style, raw and smoothed volume, the adaptive ceiling, the fill ratio, and whether the system is effectively in a silent state so students can connect sound input to the visual meter behavior.",
+                                 "parameters":  [
+                                                    "style",
+                                                    "raw",
+                                                    "smooth",
+                                                    "ceil",
+                                                    "ratio",
+                                                    "silent"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Make sounds near the microphone and watch the LEDs respond.",
+                              "Press the button to cycle through the four visual styles.",
+                              "Open the Serial Monitor to compare the measured audio values with the LED response."
+                          ],
+                "expected":  "The LEDs react to louder and quieter sounds in real time, and each button press changes the visualization style while keeping the same basic sound measurement."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare the four visualization styles",
+                                            "baseline":  "Start with a steady sound source like clapping or speaking from a similar distance.",
+                                            "variable":  "Press the button to cycle through all four styles while keeping the sound source similar.",
+                                            "observation":  "The same sound level creates different visual patterns, showing that display mapping can change without changing the input."
+                                        },
+                                        {
+                                            "title":  "Observe adaptive scaling",
+                                            "baseline":  "Run the system in a quiet room for a while.",
+                                            "variable":  "Then introduce louder sound and watch the response over time.",
+                                            "observation":  "The adaptive ceiling changes so the meter remains useful instead of staying too sensitive or too compressed."
+                                        },
+                                        {
+                                            "title":  "Watch peak hold behavior",
+                                            "baseline":  "Make repeated sounds with different loudness levels.",
+                                            "variable":  "Create some quick loud sounds followed by softer ones.",
+                                            "observation":  "The peak marker lingers briefly and then falls, helping you see recent maximum levels more clearly."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Read microphone volume -\u003e Smooth and normalize the level -\u003e Adapt the ceiling range -\u003e Convert level into LED intensity -\u003e Draw the selected visualization style -\u003e Show style feedback and print serial data"
+             }
+}

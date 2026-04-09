@@ -1,0 +1,112 @@
+{
+    "id":  "07",
+    "flow":  {
+                 "type":  "BUTTON-\u003eSTATE",
+                 "order":  7
+             },
+    "name":  {
+                 "concept":  "A button changes the animation state, and each state controls how fast the rainbow pattern moves.",
+                 "alias":  "Rainbow Ambient"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "buzzer",
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The button does not directly change LED color itself. Instead, it changes the system state, and each state makes the rainbow animation run in a different way.",
+                  "whyItWorks":  "The program stores one current mode, like slow, medium, fast, or strobe. When the button is pressed, the mode changes to the next state. The LEDs then follow the rules of that state. This shows how one small input can control a whole behavior pattern instead of just one simple on or off action.",
+                  "keyInsight":  "A state machine lets a system remember a mode and behave differently depending on that mode.",
+                  "realWorld":  "This same idea is used in fan speed control, washing machine programs, traffic light sequencing, and app settings where one button cycles through different operating modes.",
+                  "crossDomainAnalogy":  "Think of it like a music player mode button. The same song list can be played normally, shuffled, repeated, or paused depending on the selected mode. Here, the same rainbow colors exist in every case, but the chosen state changes how they move."
+              },
+    "system":  {
+                   "input":  "A push button selects the current animation speed state.",
+                   "process":  "The board stores the selected state, sets the animation timing for that mode, and rotates the rainbow pattern across the LEDs.",
+                   "output":  "The LED strip shows a rainbow animation that changes speed or flashes depending on the current state."
+               },
+    "howItWorks":  {
+                       "steps":  "The system starts with a rainbow pattern ready to animate across the 7 LEDs.\nEach button press changes the state from slow to medium to fast to strobe and then back again.\nThe selected state sets how often the animation updates.\nIn slow, medium, and fast states, the rainbow shifts smoothly through different hues.\nIn strobe state, the rainbow flashes on and off while the colors jump between flashes.",
+                       "variables":  [
+                                         {
+                                             "name":  "currentSpeed",
+                                             "range":  "0-3"
+                                         },
+                                         {
+                                             "name":  "hueOffset",
+                                             "range":  "0-255"
+                                         },
+                                         {
+                                             "name":  "strobeOn",
+                                             "range":  "0-1"
+                                         },
+                                         {
+                                             "name":  "currentBrightness",
+                                             "range":  "0-200"
+                                         },
+                                         {
+                                             "name":  "interval",
+                                             "range":  "5-80 ms typical"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "All 7 LEDs display a rainbow spread across the strip. In slow, medium, and fast modes the rainbow rotates at different speeds. In strobe mode the rainbow flashes on and off. A brief white flash appears when the button changes mode.",
+                                   "buzzer":  "There is no active buzzer behavior in the current loop, even though a buzzer helper function exists."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the selected state, the timing information, and the current hue position so students can connect button-driven state changes to animation behavior.",
+                                 "parameters":  [
+                                                    "input_value",
+                                                    "process",
+                                                    "output_level",
+                                                    "brightness"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Watch the default rainbow animation begin.",
+                              "Press the button to cycle through slow, medium, fast, and strobe modes.",
+                              "Open the Serial Monitor to compare the state number with the visible animation behavior."
+                          ],
+                "expected":  "Each button press changes the animation mode. The rainbow moves slowly, then faster, then very fast, and finally becomes a flashing rainbow strobe before repeating the cycle."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare all four states",
+                                            "baseline":  "Start in slow mode and observe the rainbow for a few seconds.",
+                                            "variable":  "Press the button repeatedly to visit medium, fast, and strobe modes.",
+                                            "observation":  "The same LED strip shows very different behavior because the internal state changes the timing rule."
+                                        },
+                                        {
+                                            "title":  "Connect state number to visible behavior",
+                                            "baseline":  "Open the Serial Monitor while the project runs.",
+                                            "variable":  "Press the button and compare the printed state value with what the LEDs do.",
+                                            "observation":  "Each state number matches a different animation style, showing how software state controls output patterns."
+                                        },
+                                        {
+                                            "title":  "Observe strobe versus smooth motion",
+                                            "baseline":  "Watch the rainbow in medium mode.",
+                                            "variable":  "Switch to strobe mode and compare how the colors appear.",
+                                            "observation":  "Smooth modes create continuous motion, while strobe mode creates a flashing effect with larger visual jumps."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Wait for button press -\u003e Change to next animation state -\u003e Set timing based on state -\u003e Update rainbow pattern -\u003e Show LEDs and print serial data"
+             }
+}

@@ -1,0 +1,116 @@
+{
+    "id":  "09",
+    "flow":  {
+                 "type":  "STATE_MACHINE-\u003eTIMED_SEQUENCE",
+                 "order":  9
+             },
+    "name":  {
+                 "concept":  "A button-controlled state machine starts a countdown, shows time passing on LEDs, and triggers an alarm when time is complete.",
+                 "alias":  "Countdown Timer"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "push button",
+                                      "buzzer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The system uses button presses to move between timer choices and operating states. A short press starts or changes the countdown, and a long press resets the timer.",
+                  "whyItWorks":  "The program stores a current state such as idle, running, or alarm. It also stores which timer preset is selected. Once the timer starts, the board compares the current time to the saved start time and calculates how much time has passed. The LEDs then show the countdown visually, and the buzzer and flashing LEDs signal when the timer reaches the end.",
+                  "keyInsight":  "A state machine helps a system remember what stage it is in, while time lets the system change behavior automatically as moments pass.",
+                  "realWorld":  "This same idea is used in microwave timers, traffic crossing countdowns, washing machine cycles, and industrial systems that move through timed stages.",
+                  "crossDomainAnalogy":  "Think of it like an exam timer. First you choose how long the exam should be, then the clock runs while time is used up, and when time ends an alarm tells everyone to stop. The device is not just reacting instantly; it remembers its stage and changes behavior over time."
+              },
+    "system":  {
+                   "input":  "A push button gives short-press and long-press commands to control timer selection and reset.",
+                   "process":  "The board changes between idle, running, and alarm states and uses elapsed time to track countdown progress.",
+                   "output":  "The LED strip shows timer status and progress, and the buzzer gives selection and alarm feedback."
+               },
+    "howItWorks":  {
+                       "steps":  "In idle state, one blue LED softly breathes to show the system is waiting.\nA short button press selects and starts one of the timer presets.\nAt the beginning of a run, a short green LED hint shows which preset was chosen.\nDuring the countdown, green LEDs show remaining time while red LEDs grow to show elapsed time.\nWhen the timer ends, the system enters alarm state with flashing red LEDs and a buzzer, and a long press resets it back to idle.",
+                       "variables":  [
+                                         {
+                                             "name":  "currentState",
+                                             "range":  "STATE_IDLE / STATE_RUNNING / STATE_ALARM"
+                                         },
+                                         {
+                                             "name":  "currentPresetIdx",
+                                             "range":  "0-2"
+                                         },
+                                         {
+                                             "name":  "presetMinutes",
+                                             "range":  "1 / 5 / 10"
+                                         },
+                                         {
+                                             "name":  "timerStartMs",
+                                             "range":  "0 and above"
+                                         },
+                                         {
+                                             "name":  "timerDurationMs",
+                                             "range":  "60000 / 300000 / 600000"
+                                         },
+                                         {
+                                             "name":  "tLeft",
+                                             "range":  "0 and above seconds"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "In idle state, LED 0 breathes blue. After selection, a short green hint lights 2, 5, or 7 LEDs depending on the preset. During countdown, green LEDs show remaining time and red LEDs grow from one side to show elapsed time. In alarm state, all LEDs flash red.",
+                                   "buzzer":  "The buzzer gives short tones for preset selection, a lower tone for long-press reset, and a continuous alarm tone when the countdown finishes."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the selected preset time, the time left in seconds, and whether the alarm output is active so students can connect timer state to visible and audible behavior.",
+                                 "parameters":  [
+                                                    "input_value",
+                                                    "time_left_sec",
+                                                    "output_level"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Observe the idle breathing blue LED.",
+                              "Press the button briefly to start a timer preset.",
+                              "Press briefly again while running to cycle to the next preset timer.",
+                              "Wait for the countdown to finish or hold the button for a long press to reset."
+                          ],
+                "expected":  "A short press starts or changes the countdown timer, the LEDs show time progress, and the system enters an alarm state when time runs out. A long press resets the system to idle."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare timer presets",
+                                            "baseline":  "Start with the first preset and observe the selection hint.",
+                                            "variable":  "Use short presses to try all preset durations.",
+                                            "observation":  "Different presets begin with different hint lengths, but all use the same countdown logic afterward."
+                                        },
+                                        {
+                                            "title":  "Observe state changes over time",
+                                            "baseline":  "Watch the system while it is idle.",
+                                            "variable":  "Start a timer and then let it run all the way to completion.",
+                                            "observation":  "The system clearly moves through idle, running, and alarm states without extra button input."
+                                        },
+                                        {
+                                            "title":  "Test short press versus long press",
+                                            "baseline":  "Start a running timer.",
+                                            "variable":  "Try a short press and then a long press.",
+                                            "observation":  "A short press changes timer behavior, while a long press resets the entire system to idle."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Wait in idle state -\u003e Detect short or long button press -\u003e Start selected timer preset -\u003e Use elapsed time to update LED countdown -\u003e When time ends, enter alarm state -\u003e Reset to idle on long press"
+             }
+}

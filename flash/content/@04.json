@@ -1,0 +1,112 @@
+{
+    "id":  "04",
+    "flow":  {
+                 "type":  "THRESHOLD-\u003eTRIGGER",
+                 "order":  4
+             },
+    "name":  {
+                 "concept":  "Sound level crossing a threshold toggles the light state.",
+                 "alias":  "Clap Switch"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "I2S microphone",
+                                      "push button",
+                                      "buzzer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "A clap can act like a switch. When the sound level rises above a chosen threshold, the LEDs toggle on or off.",
+                  "whyItWorks":  "The microphone measures sound energy over a short time window instead of reacting to one sample. The code compares that sound level to a threshold. If the sound is strong enough and enough time has passed since the last clap, the system changes state. This cooldown helps stop one clap from being counted many times.",
+                  "keyInsight":  "Threshold systems ignore small signals and only react when input becomes strong enough.",
+                  "realWorld":  "This same idea is used in clap lights, noise alarms, voice activity detection, and many sensor systems that wait for an event before acting."
+              },
+    "system":  {
+                   "input":  "An I2S microphone listens for sound level changes, and a push button changes the sensitivity level.",
+                   "process":  "The board measures sound volume, compares it to the selected threshold, and checks a cooldown timer before toggling the light state.",
+                   "output":  "The LED strip turns on or off, and the buzzer gives a short confirmation tone."
+               },
+    "howItWorks":  {
+                       "steps":  "The system listens to sound and measures how strong it is.\nA button press changes between high, medium, and low sensitivity levels.\nIf the measured sound rises above the active threshold, the system treats it like a clap event.\nA cooldown timer prevents one clap from triggering multiple times.\nThe LEDs toggle on or off, and the buzzer gives a short feedback beep.",
+                       "variables":  [
+                                         {
+                                             "name":  "noise",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "currentThreshold",
+                                             "range":  "80.0 / 2500.0 / 4500.0"
+                                         },
+                                         {
+                                             "name":  "lightsOn",
+                                             "range":  "0-1"
+                                         },
+                                         {
+                                             "name":  "sensMode",
+                                             "range":  "0-2"
+                                         },
+                                         {
+                                             "name":  "peakNoiseCache",
+                                             "range":  "0.0 and above"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "All 7 LEDs glow warm orange when the light state is on and turn fully off when the state is off. During sensitivity selection, 1 to 3 green LEDs briefly indicate the chosen sensitivity level.",
+                                   "buzzer":  "The buzzer gives a short high beep when the lights turn on, a lower beep when they turn off, and short beeps during sensitivity selection."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the strongest recent sound level, the active threshold, and whether the lights are on or off so students can see when a trigger happens.",
+                                 "parameters":  [
+                                                    "Noise_Level",
+                                                    "Threshold_Level",
+                                                    "Output_LightState"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Wait briefly for the microphone warm-up period.",
+                              "Clap near the microphone to trigger the switch.",
+                              "Press the button to cycle through sensitivity levels.",
+                              "Watch the LED state, buzzer feedback, and serial data."
+                          ],
+                "expected":  "A strong enough clap toggles the LEDs on or off, and changing the sensitivity changes how easily the clap is detected."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare sensitivity levels",
+                                            "baseline":  "Start in the medium sensitivity mode.",
+                                            "variable":  "Switch between high, medium, and low sensitivity and clap from the same distance each time.",
+                                            "observation":  "Higher sensitivity reacts more easily, while lower sensitivity needs a stronger clap."
+                                        },
+                                        {
+                                            "title":  "Test clap distance",
+                                            "baseline":  "Choose one sensitivity mode and stand near the microphone.",
+                                            "variable":  "Move farther away and clap again from different distances.",
+                                            "observation":  "The trigger becomes less reliable as the clap gets weaker with distance."
+                                        },
+                                        {
+                                            "title":  "Observe threshold behavior in noise",
+                                            "baseline":  "Run the system in a quiet room.",
+                                            "variable":  "Add background noise like talking or tapping and compare it with a real clap.",
+                                            "observation":  "Small sounds may stay below threshold, while a sharp clap crosses it and toggles the lights."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Read microphone level -\u003e Compare with selected threshold -\u003e If sound is strong enough and cooldown has passed, toggle light state -\u003e Update LEDs, buzzer, and serial data"
+             }
+}

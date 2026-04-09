@@ -1,0 +1,118 @@
+{
+    "id":  "06",
+    "flow":  {
+                 "type":  "DECISION-\u003eACTION",
+                 "order":  6
+             },
+    "name":  {
+                 "concept":  "The system compares light level to a chosen threshold and decides whether to trigger an alarm.",
+                 "alias":  "Light/Dark Buzzer"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "light-dependent resistor (LDR)",
+                                      "potentiometer",
+                                      "push button",
+                                      "buzzer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The system watches the light sensor and checks whether the reading is above or below a threshold set by the knob. The button changes whether the alarm should react to light or to darkness.",
+                  "whyItWorks":  "The potentiometer sets a decision boundary, and the LDR provides the live light reading. The program compares the two values and decides if the alarm condition is true. In light mode, the alarm reacts when the room becomes brighter than the threshold. In dark mode, it reacts when the room becomes darker than the threshold. Different outputs are then used to show the alarm state.",
+                  "keyInsight":  "A sensor becomes more useful when it is paired with a rule that decides when action should happen.",
+                  "realWorld":  "This kind of logic is used in security beams, automatic warning lights, daylight detectors, and systems that react differently depending on operating mode."
+              },
+    "system":  {
+                   "input":  "An LDR measures light level, a potentiometer sets the threshold, and a push button changes between light mode and dark mode.",
+                   "process":  "The board compares the live light reading to the threshold and checks which mode is active.",
+                   "output":  "The buzzer sounds when the alarm condition is met, and in dark mode the LEDs run a flashing strobe pattern."
+               },
+    "howItWorks":  {
+                       "steps":  "The system reads the LDR and the threshold knob again and again.\nThe button switches between light-trigger mode and dark-trigger mode.\nIn light mode, the alarm becomes active when the light reading rises above the threshold.\nIn dark mode, the alarm becomes active when the light reading falls below the threshold.\nWhen the alarm is active, the buzzer sounds and the LEDs respond according to the current mode.",
+                       "variables":  [
+                                         {
+                                             "name":  "ldr",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "pot",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "ldrThreshold",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "lightMode",
+                                             "range":  "0-1"
+                                         },
+                                         {
+                                             "name":  "shouldAlarm",
+                                             "range":  "0-1"
+                                         },
+                                         {
+                                             "name":  "systemActive",
+                                             "range":  "0-1"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "In dark mode, the LEDs flash in an alternating aviation-style strobe pattern with red on one side and blue on the other. During mode change feedback, all LEDs briefly flash green for light mode or blue for dark mode.",
+                                   "buzzer":  "In light mode the buzzer plays a steady tone when the alarm is active. In dark mode it alternates between two tones like a siren."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the LDR reading, threshold value, current mode, and alarm state so students can see how the decision is made.",
+                                 "parameters":  [
+                                                    "LDR",
+                                                    "THR",
+                                                    "MOD",
+                                                    "ALM"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Turn the potentiometer to choose a light threshold.",
+                              "Press the button to switch between light mode and dark mode.",
+                              "Change the light reaching the LDR by using your hand or a light source.",
+                              "Watch the buzzer, LED behavior, and serial data."
+                          ],
+                "expected":  "The alarm turns on when the sensor reading meets the selected condition for the active mode. In light mode the buzzer gives a steady alert, and in dark mode the LEDs and buzzer create a stronger alarm effect."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare light mode and dark mode",
+                                            "baseline":  "Set the threshold near the middle.",
+                                            "variable":  "Press the button to switch modes and then brighten or darken the LDR.",
+                                            "observation":  "The same sensor reading can either trigger or not trigger the alarm depending on which mode is selected."
+                                        },
+                                        {
+                                            "title":  "Find the trigger boundary",
+                                            "baseline":  "Choose one mode and keep the room lighting mostly steady.",
+                                            "variable":  "Slowly turn the potentiometer while watching the alarm state.",
+                                            "observation":  "The alarm changes state when the threshold crosses the current light reading."
+                                        },
+                                        {
+                                            "title":  "Test different kinds of alarm feedback",
+                                            "baseline":  "Trigger the alarm once in light mode.",
+                                            "variable":  "Switch to dark mode and trigger it again.",
+                                            "observation":  "The same decision logic can create different output behaviors depending on the selected mode."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Read light sensor and threshold knob -\u003e Check whether light mode or dark mode is active -\u003e Compare sensor value with threshold -\u003e If condition is true, run alarm outputs -\u003e If condition is false, stop alarm outputs"
+             }
+}

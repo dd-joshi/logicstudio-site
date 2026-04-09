@@ -1,0 +1,108 @@
+{
+    "id":  "08",
+    "flow":  {
+                 "type":  "TIME-\u003eSTATEFUL_OUTPUT",
+                 "order":  8
+             },
+    "name":  {
+                 "concept":  "Time drives a repeating brightness pattern, and the button changes how deep the breathing effect feels.",
+                 "alias":  "Breathing Light"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The LEDs brighten and dim in a smooth repeating cycle, like slow breathing. Pressing the button changes how shallow or deep that breathing pattern is.",
+                  "whyItWorks":  "The code uses time as the main input, so the pattern keeps running even without a sensor. A mathematical curve makes the brightness rise and fall smoothly instead of changing in sudden steps. The button changes the minimum and maximum brightness limits, which changes how strong the breathing effect appears while keeping the same warm color.",
+                  "keyInsight":  "Time can act like an invisible input signal that controls output patterns all by itself.",
+                  "realWorld":  "This same idea is used in standby lights, sleep indicators, calming ambient lamps, and user interfaces that show a device is active without needing text.",
+                  "crossDomainAnalogy":  "Think of it like a person breathing while resting. The rhythm stays similar, but the depth of each breath can be gentle, medium, or deep. Here, the timing remains continuous, while the selected mode changes how far the brightness travels."
+              },
+    "system":  {
+                   "input":  "Time continuously drives the animation, and a push button selects the breathing depth mode.",
+                   "process":  "The board calculates a smooth repeating brightness curve and limits it using the selected mode range.",
+                   "output":  "All LEDs glow warm white and fade up and down in a breathing pattern."
+               },
+    "howItWorks":  {
+                       "steps":  "The system uses time to generate a smooth repeating brightness wave.\nAll 7 LEDs stay the same warm white color during the whole effect.\nThe button cycles through gentle, medium, and deep breathing modes.\nEach mode sets a different minimum and maximum brightness range.\nThe LEDs keep fading up and down smoothly, and the deepest mode avoids very tiny brightness values to reduce flicker.",
+                       "variables":  [
+                                         {
+                                             "name":  "breathMode",
+                                             "range":  "0-2"
+                                         },
+                                         {
+                                             "name":  "breath",
+                                             "range":  "0-254 typical"
+                                         },
+                                         {
+                                             "name":  "bri",
+                                             "range":  "5-250"
+                                         },
+                                         {
+                                             "name":  "breathMin[]",
+                                             "range":  "5-40"
+                                         },
+                                         {
+                                             "name":  "breathMax[]",
+                                             "range":  "90-250"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "All 7 LEDs breathe in warm white. The gentle mode stays within a smaller brightness range, while medium and deep modes create a stronger fade effect. During mode feedback, 1, 2, or 3 LEDs briefly light up to show the selected mode.",
+                                   "buzzer":  "There is no buzzer sound in the current version."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output reports the selected breathing mode whenever the button is pressed, helping students connect mode changes to visible brightness behavior.",
+                                 "parameters":  [
+                                                    "Breath mode"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Watch the LEDs begin their warm white breathing pattern.",
+                              "Press the button to switch between gentle, medium, and deep breathing modes.",
+                              "Observe how the depth of the fade changes while the rhythm continues."
+                          ],
+                "expected":  "The LEDs smoothly fade brighter and dimmer over time, and each button press changes how soft or strong the breathing effect looks."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare breathing depth modes",
+                                            "baseline":  "Start in the default breathing mode and observe one full cycle.",
+                                            "variable":  "Press the button to move through gentle, medium, and deep modes.",
+                                            "observation":  "The rhythm stays similar, but the brightness range changes, making the breathing feel softer or stronger."
+                                        },
+                                        {
+                                            "title":  "Observe time as an input",
+                                            "baseline":  "Let the system run without touching anything.",
+                                            "variable":  "Do not use any sensors or external control during the test.",
+                                            "observation":  "The LEDs continue to animate because time alone is enough to drive the output pattern."
+                                        },
+                                        {
+                                            "title":  "Watch low-brightness behavior in deep mode",
+                                            "baseline":  "Switch to deep mode and observe the dimmest part of the cycle.",
+                                            "variable":  "Compare the dim end of deep mode with the other two modes.",
+                                            "observation":  "The deep mode still fades low, but it avoids very tiny brightness values to reduce visible flicker."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Use time to calculate a smooth breathing curve -\u003e Choose brightness range from the selected mode -\u003e Fill LEDs with warm white -\u003e Apply brightness -\u003e Repeat"
+             }
+}

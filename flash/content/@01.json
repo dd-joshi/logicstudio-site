@@ -1,0 +1,139 @@
+{
+    "id":  "01",
+    "flow":  {
+                 "type":  "BUTTON-\u003eSTATE + SIGNAL-\u003eRESPONSE",
+                 "order":  1
+             },
+    "name":  {
+                 "concept":  "Button press selects a color channel, and the knob changes that channel\u0027s brightness. A final LED shows the mixed color made from red, green, and blue together.",
+                 "alias":  "RGB Additive Mixer"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "push button",
+                                      "potentiometer",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "You press the button to choose red, green, or blue, then turn the knob to change that color. The last LED shows the combined color created from all three choices.",
+                  "whyItWorks":  "The board keeps one brightness value for each color and updates only the color you currently select. It also smooths the knob reading, like averaging shaky hand movement, so the LEDs change more steadily. A small ignore zone near zero removes tiny unwanted signals that could cause flicker.",
+                  "keyInsight":  "One knob can control many settings when a button is used to switch between them.",
+                  "realWorld":  "This same idea is used in LED lighting controls, simple device menus, and systems that need smooth sensor readings."
+              },
+    "system":  {
+                   "input":  "A push button selects the color channel, and a potentiometer sets its brightness.",
+                   "process":  "The board smooths the knob reading, ignores tiny noise near zero, and stores the new value for the selected color.",
+                   "output":  "Three LEDs show separate red, green, and blue levels, and one LED shows the mixed color."
+               },
+    "howItWorks":  {
+                       "steps":  "The system starts and gets ready to read the button and knob.\nEach button press moves the selection to the next color channel.\nThe knob changes the brightness of the currently selected color.\nThe first three LEDs show the separate red, green, and blue levels.\nThe last LED shows the final mixed color, and the selected color softly pulses when it is very dim.",
+                       "variables":  [
+                                         {
+                                             "name":  "selectedChannel",
+                                             "range":  "0-2"
+                                         },
+                                         {
+                                             "name":  "rawADC",
+                                             "range":  "0-4095"
+                                         },
+                                         {
+                                             "name":  "smoothedADC",
+                                             "range":  "0.0-4095.0"
+                                         },
+                                         {
+                                             "name":  "intensity",
+                                             "range":  "0-255"
+                                         },
+                                         {
+                                             "name":  "rgb[3]",
+                                             "range":  "0-255 per color"
+                                         },
+                                         {
+                                             "name":  "pulseAmp",
+                                             "range":  "5-40"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "LED 0 shows red, LED 1 shows green, and LED 2 shows blue. LEDs 3 to 5 stay off as spacers, and LED 6 shows the mixed result. When the selected color is very low, that color LED slowly pulses.",
+                                   "buzzer":  "There is no buzzer sound in this project."
+                               },
+                    "data":  {
+                                 "enabled":  false,
+                                 "type":  "none",
+                                 "description":  "No serial data is printed in this code, so students learn by watching the LEDs.",
+                                 "parameters":  [
+
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Press the button to choose a color channel.",
+                              "Turn the potentiometer to change that channel brightness.",
+                              "Watch the separate color LEDs and the final mixed-color LED."
+                          ],
+                "expected":  "Each button press selects the next color, the knob smoothly changes that color level, and the final LED updates to the mixed color."
+            },
+    "explore":  {
+                    "tune":  [
+                                 {
+                                     "parameter":  "DEBOUNCE_DELAY",
+                                     "effect":  "Higher values make button presses more stable but less responsive."
+                                 },
+                                 {
+                                     "parameter":  "EWMA_ALPHA",
+                                     "effect":  "Higher values make the knob feel faster, while lower values make it smoother."
+                                 },
+                                 {
+                                     "parameter":  "ADC_DEADBAND",
+                                     "effect":  "Higher values remove more tiny noise near zero but create a bigger dead zone."
+                                 },
+                                 {
+                                     "parameter":  "LOW_THRESHOLD",
+                                     "effect":  "Higher values make the dim pulse effect appear over a larger brightness range."
+                                 },
+                                 {
+                                     "parameter":  "PULSE_SPEED",
+                                     "effect":  "Higher values make the dim pulse blink faster."
+                                 },
+                                 {
+                                     "parameter":  "MAX_BRIGHTNESS",
+                                     "effect":  "Higher values make the whole strip brighter."
+                                 }
+                             ],
+                    "experiments":  [
+                                        {
+                                            "title":  "Build a color one channel at a time",
+                                            "baseline":  "Start with all colors at zero and select red first.",
+                                            "variable":  "Add different amounts of red, green, and blue by switching channels with the button.",
+                                            "observation":  "The final LED changes through mixed colors as each channel is added."
+                                        },
+                                        {
+                                            "title":  "Watch the dim pulse effect",
+                                            "baseline":  "Select one color channel and keep its brightness very low.",
+                                            "variable":  "Slowly turn the knob upward from zero.",
+                                            "observation":  "The selected color pulses when dim and becomes steady as it rises above the low range."
+                                        },
+                                        {
+                                            "title":  "Test whether each color remembers its setting",
+                                            "baseline":  "Set one color to a clear brightness level.",
+                                            "variable":  "Switch to the other colors, change them, and then return to the first color.",
+                                            "observation":  "Each color keeps its previous brightness until you adjust that same color again."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "logicFlow":  "",
+                 "pseudocode":  "Press button to choose color -\u003e Turn knob to set brightness -\u003e Show separate colors and mixed color"
+             }
+}

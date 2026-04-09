@@ -1,0 +1,113 @@
+{
+    "id":  "05",
+    "flow":  {
+                 "type":  "THRESHOLD-\u003eDECISION",
+                 "order":  5
+             },
+    "name":  {
+                 "concept":  "Microphone level is compared against an adjustable threshold, and the system locks into alarm when the threshold is crossed.",
+                 "alias":  "Noise Detector"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "I2S microphone",
+                                      "potentiometer",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "buzzer",
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The system listens to the room and compares sound level to a threshold set by the knob. If the sound becomes too strong, the alarm turns on and stays on until a person resets it.",
+                  "whyItWorks":  "The microphone signal is measured and cleaned so the system responds to real sound changes instead of hardware bias. The potentiometer creates an adjustable limit. When the measured sound rises above that limit, the program changes into an alarm state and stays there. A reset button is required to clear the alarm, and a short cooldown prevents it from instantly retriggering.",
+                  "keyInsight":  "Some systems should not return to normal automatically after a trigger. They stay latched until a person acknowledges the event.",
+                  "realWorld":  "This same logic is used in security alarms, industrial fault detection, environmental monitoring, and systems that must remember an event until someone checks it."
+              },
+    "system":  {
+                   "input":  "An I2S microphone measures room noise, a potentiometer sets the allowed threshold, and a push button resets the alarm.",
+                   "process":  "The board filters the microphone signal, compares it with the threshold, and moves between cooldown, armed, and alarm states.",
+                   "output":  "The LEDs show whether the system is cooling down, armed, or in alarm."
+               },
+    "howItWorks":  {
+                       "steps":  "The system reads the knob to decide the current noise threshold.\nIt continuously measures room sound and smooths the microphone level.\nAfter startup and cooldown, the system enters an armed monitoring state.\nIf the sound level rises above the threshold, the system locks into alarm.\nPressing the button resets the alarm, shows cooldown, and then returns the system to armed mode.",
+                       "variables":  [
+                                         {
+                                             "name":  "smoothedVol",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "currentThreshold",
+                                             "range":  "10.0-2000.0"
+                                         },
+                                         {
+                                             "name":  "currentState",
+                                             "range":  "STATE_COOLDOWN / STATE_ARMED / STATE_ALARM"
+                                         },
+                                         {
+                                             "name":  "potRatio",
+                                             "range":  "0.0-1.0"
+                                         },
+                                         {
+                                             "name":  "output_level",
+                                             "range":  "0-1"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "All LEDs glow solid blue during cooldown, dim green when armed and monitoring, and flash red when the alarm is active.",
+                                   "buzzer":  "The current code does not actively sound the buzzer, though buzzer lines are present as optional comments."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the measured sound level, the chosen threshold, and whether the alarm output is active so students can see when the decision changes state.",
+                                 "parameters":  [
+                                                    "input_value",
+                                                    "threshold",
+                                                    "output_level"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Wait through the startup cooldown period until the system becomes armed.",
+                              "Turn the potentiometer to set the desired noise threshold.",
+                              "Make sound near the microphone and watch for an alarm trigger.",
+                              "Press the button to reset the alarm after it triggers."
+                          ],
+                "expected":  "The system shows blue during cooldown, green when armed, and flashing red when the sound level crosses the threshold. The alarm remains active until the button is pressed."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Test easy and hard trigger settings",
+                                            "baseline":  "Start with the threshold near the middle.",
+                                            "variable":  "Turn the potentiometer lower and higher, then make the same sound each time.",
+                                            "observation":  "A lower threshold causes easier alarm triggers, while a higher threshold requires louder sound."
+                                        },
+                                        {
+                                            "title":  "Observe the latched alarm behavior",
+                                            "baseline":  "Arm the system and trigger the alarm once.",
+                                            "variable":  "Stop making sound without pressing the reset button.",
+                                            "observation":  "The alarm stays active even after the sound is gone, showing that the state is latched."
+                                        },
+                                        {
+                                            "title":  "Compare quiet room and noisy room behavior",
+                                            "baseline":  "Set a threshold that works in a quiet room.",
+                                            "variable":  "Move to a noisier environment or add background noise.",
+                                            "observation":  "The same threshold may trigger sooner in a louder environment, showing why adjustable limits are useful."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Read threshold knob -\u003e Measure and smooth microphone level -\u003e If armed and sound is above threshold, enter alarm -\u003e If reset button is pressed, enter cooldown -\u003e Return to armed state after cooldown"
+             }
+}

@@ -1,0 +1,117 @@
+{
+    "id":  "10",
+    "flow":  {
+                 "type":  "TIME+EVENT-\u003eCONTROL",
+                 "order":  10
+             },
+    "name":  {
+                 "concept":  "The lamp stays on for a timed session, but meaningful sound events reset the timer so the lamp remains active while the room is in use.",
+                 "alias":  "Smart Sleep Lamp"
+             },
+    "hardware":  {
+                     "required":  [
+                                      "ESP32 board",
+                                      "USB data cable",
+                                      "I2S microphone",
+                                      "push button",
+                                      "WS2812 LED strip (7 pixels)"
+                                  ],
+                     "optional":  [
+                                      "Serial Monitor"
+                                  ]
+                 },
+    "learn":  {
+                  "concept":  "The lamp turns on for a timed session and goes to sleep after a long quiet period. If the room becomes active again with a real sound event, the timer resets and the lamp stays awake.",
+                  "whyItWorks":  "The system does not react to every sound the same way. Instead, it keeps a rolling average of recent room noise to learn the normal background level. From that baseline, it creates a dynamic threshold. Only sounds that rise clearly above that moving baseline for long enough count as real activity. When activity is detected, the countdown is reset. If no valid activity happens before time runs out, the lamp turns off.",
+                  "keyInsight":  "Good control systems often combine time and events. Time sets a limit, while events can extend or interrupt that limit when something important happens.",
+                  "realWorld":  "This logic is used in motion-extended lighting, auto-sleep displays, occupancy-aware devices, and smart systems that stay active while people are still present.",
+                  "crossDomainAnalogy":  "Think of it like a study room timer in a library. If no one makes signs of activity for a long time, the room lights turn off. But if someone coughs, moves a chair, or speaks loudly enough, the room is clearly still in use, so the timer starts again."
+              },
+    "system":  {
+                   "input":  "An I2S microphone listens to room sound, and a push button manually turns the sleep session on or off.",
+                   "process":  "The board tracks a rolling noise baseline, builds a dynamic activity threshold, and resets a session timer when valid sound events are detected.",
+                   "output":  "The LED strip stays lit during the active session, pulses as the session nears its end, and turns off when the timer expires."
+               },
+    "howItWorks":  {
+                       "steps":  "A button press starts or stops the lamp session.\nWhile active, the system keeps measuring room sound and learning the recent average background noise.\nIt creates a dynamic threshold above that background level so normal quiet noise does not constantly reset the timer.\nIf a louder sound stays above the threshold long enough, the session timer resets.\nIf no valid activity happens before the countdown finishes, the lamp turns off, and in the final warning period the LEDs pulse to show time is almost over.",
+                       "variables":  [
+                                         {
+                                             "name":  "smoothedVol",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "currentBaseline",
+                                             "range":  "0.0 and above"
+                                         },
+                                         {
+                                             "name":  "dynamicThreshold",
+                                             "range":  "depends on room noise"
+                                         },
+                                         {
+                                             "name":  "timerDeadlineMs",
+                                             "range":  "0 and above"
+                                         },
+                                         {
+                                             "name":  "timeLeftSec",
+                                             "range":  "0 and above"
+                                         },
+                                         {
+                                             "name":  "currentState",
+                                             "range":  "STATE_IDLE / STATE_ACTIVE"
+                                         }
+                                     ]
+                   },
+    "observe":  {
+                    "visual":  {
+                                   "led":  "When active, all 7 LEDs glow as a warm lamp color. In the final warning window, the brightness pulses to show the session is close to ending. When idle, the LEDs are off.",
+                                   "buzzer":  "There is no buzzer behavior in this project."
+                               },
+                    "data":  {
+                                 "enabled":  true,
+                                 "type":  "serial",
+                                 "description":  "The serial output prints the current sound level, whether the lamp is active, the dynamic baseline threshold, and the time left in seconds so students can see how room activity affects the timer.",
+                                 "parameters":  [
+                                                    "input_value",
+                                                    "output_level",
+                                                    "baseline_threshold",
+                                                    "time_left_sec"
+                                                ]
+                             }
+                },
+    "run":  {
+                "steps":  [
+                              "Connect the ESP32 board with a USB data cable.",
+                              "Flash the project to the board.",
+                              "Press the button to start the lamp session.",
+                              "Make occasional sounds near the microphone to simulate room activity.",
+                              "Watch the LEDs stay active and notice that strong sound events reset the timer.",
+                              "Stop making sound and observe that the lamp eventually enters its warning period and then turns off."
+                          ],
+                "expected":  "The lamp stays on during an active session, resets its timer when meaningful room sound is detected, pulses near the end of the session, and turns off after a long quiet period."
+            },
+    "explore":  {
+                    "experiments":  [
+                                        {
+                                            "title":  "Compare quiet and active room behavior",
+                                            "baseline":  "Start the lamp session in a quiet room.",
+                                            "variable":  "First remain quiet, then repeat with occasional speech or claps.",
+                                            "observation":  "The lamp times out in quiet conditions but stays active longer when real sound events keep resetting the timer."
+                                        },
+                                        {
+                                            "title":  "Observe the dynamic threshold idea",
+                                            "baseline":  "Open the Serial Monitor while the lamp is active.",
+                                            "variable":  "Create gentle background noise and then a stronger sound event.",
+                                            "observation":  "The threshold follows the room\u0027s normal noise level, so only sounds clearly above that baseline count as activity."
+                                        },
+                                        {
+                                            "title":  "Watch the warning window",
+                                            "baseline":  "Start a session and then stop creating activity.",
+                                            "variable":  "Observe the LEDs during the final part of the countdown.",
+                                            "observation":  "The lamp begins pulsing near the end, showing that time and event logic can work together in one system."
+                                        }
+                                    ]
+                },
+    "code":  {
+                 "pseudocode":  "Press button to start or stop session -\u003e Measure and smooth room sound -\u003e Update rolling baseline -\u003e Build dynamic activity threshold -\u003e If valid sound event occurs, reset timer -\u003e Pulse LEDs near timeout -\u003e Turn lamp off when time ends"
+             }
+}

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLUX Console - LOGIC | STUDIO</title>
+  <meta name="description" content="Flash your ESP32 board with 12 projects from your browser." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#F8FAFC; --surface:#FFFFFF; --surface2:#F1F5F9; --accent:#EA580C; --accent2:#C2410C; --success:#10B981; --warn:#F59E0B; --error:#EF4444; --text:#0F172A; --muted:#475569; --dim:#64748B; --border:#E2E8F0; --border2:#CBD5E1; --mono:'IBM Plex Mono',monospace; --sans:'Inter',system-ui,sans-serif; --r:0px; --r2:0px; --max:1200px; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    a{text-decoration:none;color:inherit}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,0,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+    .container{max-width:var(--max);margin:0 auto;padding:0 24px;position:relative;z-index:1}
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .logo{font-family:var(--mono);font-weight:500;font-size:14px;letter-spacing:0.5px;color:var(--text)}.logo span{color:var(--accent)}
+    .nav-links{display:flex;gap:28px;list-style:none;font-family:var(--mono);font-size:13px}
+    .nav-links a{color:var(--muted);transition:color .2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .nav-console{border:1px solid var(--border2);color:var(--muted);padding:8px 16px;font-family:var(--sans);font-size:13px;font-weight:600;display:inline-block;transition:border-color .2s,color .2s,background .2s}
+    .nav-console:hover{border-color:var(--accent);color:var(--text);background:rgba(255,138,0,.08)}
+    .hdr{padding:40px 0 24px;border-bottom:1px solid var(--border)}
+    .label{font-family:var(--mono);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:4px}
+    .label::before{content:'';display:inline-block;width:14px;height:1px;background:var(--accent)}
+    .hdr h1{font-family:var(--sans);font-size:clamp(22px,2.8vw,34px);font-weight:800;letter-spacing:-0.5px;margin:8px 0}
+    .hdr p{color:var(--muted);max-width:700px;font-size:14px;line-height:1.7}
+    .compat{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--border);padding:8px 12px;border-radius:var(--r)}
+    .hdr-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:24px;padding:28px 0 80px;align-items:start}
+    .menu{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+    .menu-head{padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .menu-title{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+    .menu-count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+    .menu-list{padding:8px;display:flex;flex-direction:column;gap:8px}
+    .menu-builder{padding:8px;border-top:1px solid var(--border);background:var(--surface)}
+    .item{border:1px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;background:var(--surface)}
+    .item:hover{border-color:rgba(255,138,0,0.5)}.item.active{border-color:var(--accent);background:rgba(255,138,0,.1)}
+    .menu.locked .item{cursor:not-allowed;opacity:.65}
+    .menu.locked .item.active{opacity:1}
+    .item-num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em}
+    .item-name{font-family:var(--mono);font-size:13px;font-weight:600}
+    .item-tag{font-family:var(--mono);font-size:11px;color:var(--accent)}
+
+    .hub{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+    .hub-head{padding:16px;background:var(--surface2);border-bottom:1px solid var(--border)}
+    .hub-name{font-family:var(--mono);font-size:20px;font-weight:700}
+    .hub-meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+    .tabs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .tab-btn{font-family:var(--mono);font-size:12px;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:8px 12px;border-radius:var(--r);cursor:pointer}
+    .tab-btn.active{border-color:rgba(255,138,0,0.6);color:var(--accent);background:rgba(255,138,0,.1)}
+    .tab-content{padding:18px}.tab{display:none}.tab.active{display:block}
+    .block + .block{margin-top:16px}
+    .section-fold{background:var(--surface2);border:1px solid var(--border)}
+    .section-fold summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;letter-spacing:.05em;text-transform:uppercase}
+    .section-fold summary::-webkit-details-marker{display:none}
+    .section-fold summary::after{content:"▾";font-size:12px;color:var(--dim);transition:transform .2s ease,color .2s ease}
+    .section-fold[open] summary::after{transform:rotate(180deg);color:var(--accent)}
+    .fold-body{padding:0 14px 14px}
+    .ttl{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+    .diagram{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+    .chip{border:1px solid var(--border);border-radius:var(--r);padding:8px;text-align:center;font-family:var(--mono);font-size:12px}
+    .txt{color:var(--muted);font-size:14px;line-height:1.7}
+    .txt strong{color:var(--text);font-weight:600}
+    .btn{display:inline-flex;font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--border)}
+    .btn:hover{border-color:var(--accent);color:var(--accent)}
+    .pipeline-list li{line-height:1.6}
+    .pipeline-list strong{color:var(--text)}
+    .list{list-style:none;display:grid;gap:8px}.list li{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:13px;color:var(--muted)}
+    .single-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:13px;color:var(--muted);line-height:1.6}
+    .point-line{display:block;padding-left:14px;position:relative}
+    .point-line::before{content:"\2022";position:absolute;left:0;color:var(--accent)}
+    .point-line + .point-line{margin-top:6px}
+    .subttl{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+    .list + .subttl,.single-box + .subttl{margin-top:10px}
+    .muted-note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:8px}
+    .flashbox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+    .flash-steps{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:10px}
+    .flash-steps ol{list-style:none;display:grid;gap:8px}
+    .flash-steps li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:13px;line-height:1.55}
+    .flash-steps .n{min-width:20px;height:20px;border-radius:999px;background:rgba(255,138,0,.18);border:1px solid rgba(255,138,0,.45);color:var(--accent);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+    .flash-steps strong{color:var(--text);font-weight:600}
+    .flash-tip{font-family:var(--mono);font-size:12px;color:var(--dim);margin:2px 0 10px}
+    .status-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;padding:4px 10px;border-radius:20px}
+    .pill.disconnected{background:rgba(224,92,92,.12);color:var(--error);border:1px solid rgba(224,92,92,.25)}
+    .pill.connected{background:rgba(76,175,125,.12);color:var(--success);border:1px solid rgba(76,175,125,.25)}
+    .pill.connecting,.pill.flashing{background:rgba(255,138,0,.12);color:var(--warn);border:1px solid rgba(255,138,0,.25)}
+    .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+    esp-web-install-button{display:block;width:100%;margin-bottom:10px}
+    .connect{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer}
+    .progress{display:none}.progress.visible{display:block}
+    .progress-h{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+    .barbg{height:4px;background:var(--surface);border-radius:2px;overflow:hidden}
+    .bar{height:100%;width:0%;background:var(--accent);transition:width .3s ease}
+    .note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:8px}
+    .log{height:140px;overflow:auto;background:#0a121d;border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-family:var(--mono);font-size:12px;line-height:1.7}
+    .faqbox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+    .faq-item + .faq-item{border-top:1px solid var(--border)}
+    .faq-item summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+    .faq-item summary::-webkit-details-marker{display:none}
+    .faq-item summary::after{content:"▾";font-size:13px;color:var(--dim);transition:transform .2s ease,color .2s ease}
+    .faq-item[open] summary::after{transform:rotate(180deg);color:var(--accent)}
+    .faq-item p{padding:0 16px 14px;color:var(--muted);font-size:14px;line-height:1.6}
+    .expbox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+    .exp-item + .exp-item{border-top:1px solid var(--border)}
+    .exp-item summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+    .exp-item summary::-webkit-details-marker{display:none}
+    .exp-item summary::after{content:"▾";font-size:12px;color:var(--dim);transition:transform .2s ease,color .2s ease}
+    .exp-item[open] summary::after{transform:rotate(180deg);color:var(--accent)}
+    .exp-body{padding:0 14px 12px;display:grid;gap:8px}
+    .exp-body p{color:var(--muted);font-size:13px;line-height:1.6}
+    .exp-body strong{color:var(--text);font-weight:600}
+    .exp-empty{padding:12px 14px;color:var(--dim);font-size:13px}
+    .legend-block{display:none}
+    .legend-block.visible{display:block}
+    .legend-item summary{color:var(--accent)}
+    .support-note{font-size:12px;color:var(--dim);border-top:1px dashed var(--border);padding-top:10px}
+    #feature-request-container{background:var(--surface2);border:1px solid var(--border);padding:14px}
+    #feature-request-container .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    #feature-request-container label{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+    #feature-request-container input,#feature-request-container select{width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px}
+    #feature-request-container input::placeholder{color:var(--dim)}
+    #feature-request-container input:focus,#feature-request-container select:focus{outline:none;border-color:rgba(255,138,0,.6)}
+    #feature-request-container .form-actions{margin-top:4px}
+    #feature-request-container button{padding:10px 18px;background:var(--accent);color:#fff;border:none;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer}
+    #feature-request-container button:hover{background:var(--accent2)}
+    #feature-request-container footer{margin-top:10px}
+    #feature-request-container footer p{font-size:12px;color:var(--dim);line-height:1.5}
+    .hp-field{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+    .line{display:flex;gap:8px}.time{color:var(--dim)}.line.success .msg{color:var(--success)}.line.error .msg{color:var(--error)}.line.info .msg{color:var(--accent)}.line.warn .msg{color:var(--warn)}
+    /* ── REAL PROGRESS ── */
+    @keyframes bar-pulse{0%,100%{opacity:.3}50%{opacity:1}}
+    .bar.indeterminate{width:100%!important;animation:bar-pulse 1s ease-in-out infinite}
+    /* ── SERIAL MONITOR ── */
+    .serial-box{background:var(--surface2);border:1px solid var(--border);margin-top:10px}
+    .serial-head{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--border);background:var(--surface)}
+    .serial-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+    .serial-actions{display:flex;gap:6px;align-items:center}
+    .serial-status{font-family:var(--mono);font-size:11px;color:var(--dim);margin-right:4px}
+    .serial-status.on{color:var(--success)}
+    .sbtn{font-family:var(--mono);font-size:12px;padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);cursor:pointer;line-height:1}
+    .sbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+    .sbtn:disabled{opacity:.35;cursor:not-allowed}
+    .sbtn.active{border-color:var(--success);color:var(--success)}
+    .sbtn.active:hover:not(:disabled){border-color:var(--error);color:var(--error)}
+    .serial-log{height:148px;overflow-y:auto;padding:8px 10px;font-family:var(--mono);font-size:12px;line-height:1.8;background:var(--surface2)}
+    .sline{display:flex;gap:8px}
+    .stime{color:var(--dim);flex-shrink:0;font-size:11px;padding-top:1px}
+    .smsg{color:var(--muted);word-break:break-all}
+    .sline.telem .smsg{color:var(--success)}
+    .sline.serr .smsg{color:var(--error)}
+    .sline.swarn .smsg{color:var(--warn)}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+    @media (max-width:900px){nav{padding:0 20px}.nav-links{display:none}.container{padding:0 16px}}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="../" class="logo">LOGIC <span>|</span> STUDIO</a>
+    <div class="nav-links">
+      <a href="../#functions">Functions</a>
+      <a href="../#kit">Kit</a>
+      <a href="../#ai-coder">AI Coder</a>
+      <a href="../#faq">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="../" class="nav-console">Home</a>
+    </div>
+  </nav>
+
+  <div class="hdr">
+    <div class="container">
+      <div class="hdr-row">
+        <div>
+          <div class="label">FLUX Console</div>
+          <h1>Pick a Project. Flash it. Learn it.</h1>
+          <p>Choose any of the 12 built-in functions. Each one comes with a concept lesson, the firmware logic, and one-click flashing.</p>
+        </div>
+        <div class="compat">Requires <strong>Chrome</strong> or <strong>Edge</strong> with Web Serial API</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="layout">
+      <aside class="menu">
+        <div class="menu-head"><span class="menu-title">Project Menu</span><span class="menu-count" id="projectCount">12 Projects</span></div>
+        <div class="menu-list" id="projectList"></div>
+        <div class="menu-builder">
+          <details class="section-fold">
+            <summary>Talk to the Builder</summary>
+            <div class="fold-body">
+              <section id="feature-request-container">
+                <form name="flux-feature-requests" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                  <input type="hidden" name="form-name" value="flux-feature-requests">
+                  <p class="hp-field">
+                    <label>Do not fill this field if you are human: <input name="bot-field"></label>
+                  </p>
+                  <div class="form-group">
+                    <label for="request-input">Feedback or suggest a feature</label>
+                    <input type="text" id="request-input" name="request" placeholder="Just saying hi / it's awesome" maxlength="200" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="level-select">User Category</label>
+                    <select id="level-select" name="user_level" required>
+                      <option value="" disabled selected>Select level...</option>
+                      <option value="School">School (Grade 5-10)</option>
+                      <option value="High School">High School (Grade 11-12)</option>
+                      <option value="University">University / Engineering</option>
+                      <option value="Developer">Developer / Maker</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="contact-input">Contact (optional)</label>
+                    <input type="text" id="contact-input" name="contact" placeholder="Only if you want a reply" maxlength="100">
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit">Submit</button>
+                  </div>
+                  <footer>
+                    <p>Prioritized by community demand. Requires FLUX hardware.</p>
+                  </footer>
+                </form>
+              </section>
+            </div>
+          </details>
+        </div>
+      </aside>
+
+      <section class="hub">
+        <div class="hub-head">
+          <div class="hub-name" id="hubName">function1</div>
+          <div class="hub-meta" id="hubMeta">Project 01 | Sensor</div>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="learn">Learn</button>
+            <button class="tab-btn" data-tab="code">The Code</button>
+            <button class="tab-btn" data-tab="flash">Flash &amp; Play</button>
+          </div>
+        </div>
+
+        <div class="tab-content">
+          <div class="tab active" id="tab-learn">
+            <div class="block"><div class="ttl">Simple Diagram</div><div class="diagram"><div class="chip" id="diagramA">Sensor Input</div><div>-&gt;</div><div class="chip" id="diagramB">Action Output</div></div></div>
+            <div class="block">
+              <div class="ttl">Hardware Needed</div>
+              <div class="subttl">Required</div>
+              <div class="single-box" id="hardwareRequired"></div>
+              <div class="subttl">Optional</div>
+              <ul class="list" id="hardwareOptional"></ul>
+            </div>
+            <div class="block"><div class="ttl">Core Concept</div><p class="txt" id="conceptText">Dummy concept for function1.</p></div>
+            <div class="block"><div class="ttl">Why It Works</div><p class="txt" id="whyItWorksText">Principle notes will appear here.</p></div>
+            <div class="block"><div class="ttl">Key Insight</div><p class="txt" id="keyInsightText">Key takeaway will appear here.</p></div>
+            <div class="block"><div class="ttl">Real-World Application</div><p class="txt" id="realWorldText">This is where practical usage context will appear.</p></div>
+            <div class="block"><div class="ttl">The System Pipeline</div>
+              <ul class="list pipeline-list">
+                <li><strong>Input:</strong> <span id="pipeInput">Pending project input details.</span></li>
+                <li><strong>Process:</strong> <span id="pipeLogic">Pending project logic details.</span></li>
+                <li><strong>Output:</strong> <span id="pipeOutput">Pending project output details.</span></li>
+              </ul>
+            </div>
+            <div class="block"><a class="btn" id="pdfBtn" href="#" download>Download module PDF chart</a></div>
+          </div>
+
+          <div class="tab" id="tab-code">
+            <div class="block">
+              <div class="ttl">Logic Flow or How It Works</div>
+              <div class="single-box" id="logicFlowList"></div>
+              <p class="muted-note" id="logicFlowNote">Read input -&gt; Process logic -&gt; Drive output</p>
+            </div>
+            <div class="block"><div class="ttl">Key Variables</div><div class="single-box" id="variablesList"></div></div>
+          </div>
+
+          <div class="tab" id="tab-flash">
+            <div class="block"><div class="ttl">Flash to ESP32</div>
+              <div class="flashbox">
+                <div class="status-row">
+                  <span class="pill disconnected" id="statusPill"><span class="dot"></span><span id="statusText">Disconnected</span></span>
+                  <span class="hub-meta" id="selectedText">Project 01 selected</span>
+                </div>
+                <div class="flash-steps">
+                  <ol>
+                    <li><span class="n">1</span><span><strong>Plug your ESP32 into USB.</strong></span></li>
+                    <li><span class="n">2</span><span><strong>Click Connect &amp; Flash.</strong> Your browser will ask for serial port permission.</span></li>
+                    <li><span class="n">3</span><span><strong>Select the correct COM port.</strong> A pop-up window opens</span></li>
+                    <li><span class="n">4</span><span><strong>Click INSTALL</strong> when the confirmation dialog appears.</span></li>
+                    <li><span class="n">5</span><span><strong>Wait for "Installation complete!"</strong> then click NEXT.</span></li>
+                    <li><span class="n">6</span><span><strong>Close the pop-up</strong> by clicking the "X" in the top-right corner of the dialog box.</span></li>
+        
+                  </ol>
+                </div>
+                <div class="flash-tip">After successful installation, use the Serial Monitor below to see live data.</div>
+                <esp-web-install-button id="flashBtn"><button slot="activate" class="connect">Connect &amp; Flash ESP32</button></esp-web-install-button>
+                <div class="progress" id="progressWrap"><div class="progress-h"><span id="progressLabel">Waiting...</span><span id="progressPct">0%</span></div><div class="barbg"><div class="bar" id="progressBar"></div></div></div>
+                <div class="note" id="progressNote">Waiting for connection...</div>
+              </div>
+              <!-- ── SERIAL MONITOR ── -->
+              <div class="serial-box">
+                <div class="serial-head">
+                  <span class="serial-label">Serial Monitor</span>
+                  <div class="serial-actions">
+                    <span class="serial-status" id="serialStatus">● Not connected</span>
+                    <button class="sbtn" id="serialClearBtn" onclick="clearSerialLog()" title="Clear log">Clear</button>
+                    <button class="sbtn" id="serialConnectBtn" onclick="toggleSerial()">Connect</button>
+                  </div>
+                </div>
+                <div class="serial-log" id="serialLog">
+                  <div class="sline"><span class="stime">--:--:--</span><span class="smsg">Flash the board, then click Connect to see live telemetry.</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="block legend-block" id="legendBlock">
+              <div class="ttl">Function Controls Legend</div>
+              <div class="expbox" id="legendBox"></div>
+            </div>
+            <div class="block">
+              <div class="ttl">Observe While Running</div>
+              <div class="single-box" id="observeList"></div>
+              <p class="muted-note" id="observeDataText"></p>
+              <div class="subttl">Project Run Notes</div>
+              <div class="single-box" id="runStepsList"></div>
+            </div>
+            <div class="block">
+              <details class="section-fold">
+                <summary>Expected Result</summary>
+                <div class="fold-body">
+                  <p class="txt" id="expectedText"></p>
+                </div>
+              </details>
+            </div>
+            <div class="block">
+              <details class="section-fold">
+                <summary>Experiment Checklist</summary>
+                <div class="fold-body">
+                  <div class="expbox" id="expList"></div>
+                </div>
+              </details>
+            </div>
+            <div class="block">
+              <details class="section-fold">
+                <summary>Flash Activity</summary>
+                <div class="fold-body">
+                  <div class="log" id="logBox"></div>
+                </div>
+              </details>
+            </div>
+            <div class="block">
+              <details class="section-fold">
+                <summary>Common Questions</summary>
+                <div class="fold-body">
+                  <div class="faqbox">
+                    <details class="faq-item">
+                      <summary>Which browsers work?</summary>
+                      <p>Use current desktop Google Chrome or Microsoft Edge with Web Serial support enabled.</p>
+                    </details>
+                    <details class="faq-item" open>
+                      <summary>Device not recognized?</summary>
+                      <p>Use a data-capable USB cable, reconnect the board, close other serial apps, and select the correct COM or tty port.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Flash fails or gets stuck?</summary>
+                      <p>Retry once, then try BOOT-hold flashing and check that the board has stable power over USB.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Output behavior seems wrong?</summary>
+                      <p>Confirm wiring, pin mapping, LED strip type and color order, and test in a quieter or cleaner environment when the function uses microphone input.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Do I need to press BOOT?</summary>
+                      <p>Usually no. If auto-connect fails on some boards, hold BOOT while clicking the flash button, then release when writing starts.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Can I switch projects while flashing?</summary>
+                      <p>No. Project switching is locked during active flashing to prevent serial write corruption.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Is my data sent anywhere?</summary>
+                      <p>No cloud upload is required for flashing. The firmware is written locally from your browser to the connected board.</p>
+                    </details>
+                    <details class="faq-item">
+                      <summary>Support note</summary>
+                      <p>Support note: If flashing fails more than 3 times, keep the log screenshot and mail to info@logicstudio.co.in with board model &amp; OS.</p>
+                    </details>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="https://unpkg.com/esp-web-tools@8.0.1/dist/web/install-button.js?module"></script>
+  <script>
+    const PROJECT_INDEX = Array.from({ length: 12 }, (_, i) => {
+      const id = String(i + 1).padStart(2, "0");
+      return {
+        id,
+        contentPath: `./content/@${id}.json`
+      };
+    });
+    const FLASH_STEPS = [];
+
+    const $ = (id) => document.getElementById(id);
+    const projectList = $("projectList");
+    const projectCount = $("projectCount");
+    const menu = document.querySelector(".menu");
+    const hubName = $("hubName");
+    const hubMeta = $("hubMeta");
+    const diagramA = $("diagramA");
+    const diagramB = $("diagramB");
+    const hardwareRequired = $("hardwareRequired");
+    const hardwareOptional = $("hardwareOptional");
+    const conceptText = $("conceptText");
+    const whyItWorksText = $("whyItWorksText");
+    const keyInsightText = $("keyInsightText");
+    const realWorldText = $("realWorldText");
+    const pipeInput = $("pipeInput");
+    const pipeLogic = $("pipeLogic");
+    const pipeOutput = $("pipeOutput");
+    const pdfBtn = $("pdfBtn");
+    const logicFlowList = $("logicFlowList");
+    const logicFlowNote = $("logicFlowNote");
+    const variablesList = $("variablesList");
+    const legendBlock = $("legendBlock");
+    const legendBox = $("legendBox");
+    const observeList = $("observeList");
+    const observeDataText = $("observeDataText");
+    const runStepsList = $("runStepsList");
+    const expectedText = $("expectedText");
+    const expList = $("expList");
+    const selectedText = $("selectedText");
+    const statusPill = $("statusPill");
+    const statusText = $("statusText");
+    const progressWrap = $("progressWrap");
+    const progressLabel = $("progressLabel");
+    const progressPct = $("progressPct");
+    const progressBar = $("progressBar");
+    const progressNote = $("progressNote");
+    const logBox = $("logBox");
+    const flashBtn = $("flashBtn");
+
+    let projectMenu = PROJECT_INDEX.map(({ id }) => ({ id, name: `function${Number(id)}`, tag: "Module" }));
+    let selected = defaultProjectData(PROJECT_INDEX[0].id);
+    let resetTimer = null;
+    let isFlashing = false;
+    let selectRequestId = 0;
+    const projectCache = new Map();
+    const MAX_LOG_LINES = 300;
+
+    // ── Serial monitor state ──
+    let serialPort = null;
+    let serialReader = null;
+    let isMonitoring = false;
+    let serialBuffer = "";
+
+    function esc(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function asText(value, fallback = "") {
+      if (value === null || value === undefined) return fallback;
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed || fallback;
+      }
+      if (typeof value === "number" || typeof value === "boolean") return String(value);
+      if (Array.isArray(value)) {
+        const joined = value.map((entry) => asText(entry, "")).filter(Boolean).join(" ");
+        return joined || fallback;
+      }
+      return fallback;
+    }
+
+    function toTextList(value) {
+      if (Array.isArray(value)) {
+        return value
+          .flatMap((item) => toTextList(item))
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+      if (typeof value === "string") {
+        return value
+          .split(/\r?\n+/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+      }
+      if (typeof value === "number" || typeof value === "boolean") return [String(value)];
+      return [];
+    }
+
+    function toVariableTextList(value) {
+      if (Array.isArray(value)) {
+        return value
+          .flatMap((item, idx) => {
+            if (item && typeof item === "object") {
+              const name = asText(item.name, `var_${idx + 1}`);
+              const range = asText(item.range, "");
+              return range ? `${name}: ${range}` : name;
+            }
+            return toVariableTextList(item);
+          })
+          .map((item) => asText(item).trim())
+          .filter(Boolean);
+      }
+      if (typeof value === "string") {
+        return value
+          .split(/\r?\n+/)
+          .flatMap((line) => line.split(/\s*,\s*/))
+          .map((line) => line.trim())
+          .filter(Boolean);
+      }
+      if (typeof value === "number" || typeof value === "boolean") return [String(value)];
+      return [];
+    }
+
+    function normaliseTune(item, idx) {
+      const entry = item && typeof item === "object" ? item : {};
+      return {
+        parameter: asText(entry.parameter, `Parameter ${idx + 1}`),
+        effect: asText(entry.effect, "Not specified.")
+      };
+    }
+
+    function normaliseExperiment(item, idx) {
+      if (typeof item === "string") {
+        return {
+          title: `Experiment ${idx + 1}`,
+          baseline: item,
+          variable: "Change one input or parameter at a time.",
+          observation: "Observe system output and compare results."
+        };
+      }
+      const entry = item && typeof item === "object" ? item : {};
+      return {
+        title: asText(entry.title, `Experiment ${idx + 1}`),
+        baseline: asText(entry.baseline, "Not specified."),
+        variable: asText(entry.variable, "Not specified."),
+        observation: asText(entry.observation, "Not specified.")
+      };
+    }
+
+    function renderList(container, items, emptyText, formatter = (item) => esc(asText(item))) {
+      if (!container) return;
+      const rows = Array.isArray(items) ? items.filter((item) => item !== null && item !== undefined) : [];
+      if (rows.length === 0) {
+        container.innerHTML = `<li>${esc(emptyText)}</li>`;
+        return;
+      }
+      container.innerHTML = rows.map((item) => `<li>${formatter(item)}</li>`).join("");
+    }
+
+    function renderInlineText(container, items, emptyText, separator = ", ") {
+      if (!container) return;
+      const rows = toTextList(items);
+      container.textContent = rows.length > 0 ? rows.join(separator) : emptyText;
+    }
+
+    function renderPointLines(container, items, emptyText) {
+      if (!container) return;
+      const rows = toTextList(items);
+      if (rows.length === 0) {
+        container.textContent = emptyText;
+        return;
+      }
+      container.innerHTML = rows.map((item) => `<span class="point-line">${esc(item)}</span>`).join("");
+    }
+
+    function defaultProjectData(id) {
+      const n = Number(id);
+      const name = `function${n}`;
+      return {
+        id,
+        order: n,
+        flowType: "Module",
+        name,
+        alias: name,
+        tag: "Module",
+        hardware: {
+          required: [],
+          optional: []
+        },
+        learn: {
+          diagramA: `Input ${n}`,
+          diagramB: `Output ${n}`,
+          coreConcept: `Content for function${n} is not configured yet.`,
+          whyItWorks: "Principle notes are pending.",
+          keyInsight: "Key insight is pending.",
+          realWorldApplication: "Real-world application notes are pending.",
+          pipeline: {
+            input: "Define input trigger and acquisition.",
+            process: "Define state machine and processing logic.",
+            output: "Define physical or UI output behavior."
+          },
+          pdf: `./docs/function${n}-chart.pdf`
+        },
+        code: {
+          pseudocode: "Logic note will appear here.",
+          logicFlow: ["Logic flow notes are pending."]
+        },
+        howItWorks: {
+          steps: [],
+          variables: []
+        },
+        observe: {
+          visual: {
+            led: "",
+            buzzer: ""
+          },
+          data: {
+            enabled: false,
+            type: "none",
+            description: "",
+            parameters: []
+          }
+        },
+        run: {
+          steps: [],
+          expected: "Expected behavior notes are pending."
+        },
+        explore: {
+          tune: [],
+          experiments: [
+            {
+              title: "Experiment 1",
+              baseline: "Define baseline run condition.",
+              variable: "Define one changed variable.",
+              observation: "Capture and compare observed behavior."
+            }
+          ]
+        }
+      };
+    }
+
+    function normaliseDemoSchema(id, source, fallback) {
+      const flow = source.flow && typeof source.flow === "object" ? source.flow : {};
+      const name = source.name && typeof source.name === "object" ? source.name : {};
+      const hardware = source.hardware && typeof source.hardware === "object" ? source.hardware : {};
+      const learn = source.learn && typeof source.learn === "object" ? source.learn : {};
+      const system = source.system && typeof source.system === "object" ? source.system : {};
+      const howItWorks = source.howItWorks && typeof source.howItWorks === "object" ? source.howItWorks : {};
+      const observe = source.observe && typeof source.observe === "object" ? source.observe : {};
+      const run = source.run && typeof source.run === "object" ? source.run : {};
+      const explore = source.explore && typeof source.explore === "object" ? source.explore : {};
+      const code = source.code && typeof source.code === "object" ? source.code : {};
+
+      return {
+        id: asText(source.id, id).padStart(2, "0"),
+        order: Number(flow.order || fallback.order),
+        flowType: asText(flow.type, fallback.flowType),
+        name: asText(name.alias || name.concept, fallback.name),
+        alias: asText(name.alias, fallback.alias),
+        tag: asText(flow.type, fallback.tag),
+        hardware: {
+          required: toTextList(hardware.required),
+          optional: toTextList(hardware.optional)
+        },
+        learn: {
+          diagramA: asText(system.input, fallback.learn.diagramA),
+          diagramB: asText(system.output, fallback.learn.diagramB),
+          coreConcept: asText(learn.concept, fallback.learn.coreConcept),
+          whyItWorks: asText(learn.whyItWorks, fallback.learn.whyItWorks),
+          keyInsight: asText(learn.keyInsight, fallback.learn.keyInsight),
+          realWorldApplication: asText(learn.realWorld, fallback.learn.realWorldApplication),
+          pipeline: {
+            input: asText(system.input, fallback.learn.pipeline.input),
+            process: asText(system.process, fallback.learn.pipeline.process),
+            output: asText(system.output, fallback.learn.pipeline.output)
+          },
+          pdf: asText(learn.pdf, "")
+        },
+        code: {
+          pseudocode: toTextList(code.pseudocode),
+          logicFlow: toTextList(code.logicFlow).length ? toTextList(code.logicFlow) : toTextList(howItWorks.steps)
+        },
+        howItWorks: {
+          steps: toTextList(howItWorks.steps),
+          variables: toVariableTextList(howItWorks.variables)
+        },
+        observe: {
+          visual: {
+            led: asText(observe.visual && observe.visual.led, ""),
+            buzzer: asText(observe.visual && observe.visual.buzzer, "")
+          },
+          data: {
+            enabled: Boolean(observe.data && observe.data.enabled),
+            type: asText(observe.data && observe.data.type, "none"),
+            description: asText(observe.data && observe.data.description, ""),
+            parameters: Array.isArray(observe.data && observe.data.parameters)
+              ? observe.data.parameters.map((x) => asText(x)).filter(Boolean)
+              : []
+          }
+        },
+        run: {
+          steps: Array.isArray(run.steps) ? run.steps.map((x) => asText(x)).filter(Boolean) : [],
+          expected: asText(run.expected, fallback.run.expected)
+        },
+        explore: {
+          tune: Array.isArray(explore.tune) ? explore.tune.map(normaliseTune) : [],
+          experiments: Array.isArray(explore.experiments)
+            ? explore.experiments.map(normaliseExperiment)
+            : fallback.explore.experiments
+        }
+      };
+    }
+
+    function normaliseProjectData(id, raw) {
+      const fallback = defaultProjectData(id);
+      const source = raw && typeof raw === "object" ? raw : {};
+      return normaliseDemoSchema(id, source, fallback);
+    }
+
+    async function loadProjectData(id, silent = false) {
+      if (projectCache.has(id)) return projectCache.get(id);
+      const indexEntry = PROJECT_INDEX.find((p) => p.id === id);
+      if (!indexEntry) return defaultProjectData(id);
+
+      try {
+        const response = await fetch(indexEntry.contentPath, { cache: "no-store" });
+        if (response.ok) {
+          const raw = await response.json();
+          const parsed = normaliseProjectData(id, raw);
+          projectCache.set(id, parsed);
+          return parsed;
+        }
+      } catch (_error) {
+        // Fallback handled below.
+      }
+
+      const fallback = defaultProjectData(id);
+      projectCache.set(id, fallback);
+      if (!silent) {
+        log(`Missing or invalid DEMO schema file: @${id}.json. Showing fallback content.`, "warn");
+      }
+      return fallback;
+    }
+
+    async function preloadProjectMenu() {
+      const loaded = await Promise.all(PROJECT_INDEX.map((p) => loadProjectData(p.id, true)));
+      projectMenu = loaded.map((p) => ({ id: p.id, name: p.name, tag: p.tag }));
+    }
+
+    function renderLegendItem(legend) {
+      if (!legendBlock || !legendBox || !legend) {
+        if (legendBlock) legendBlock.classList.remove("visible");
+        if (legendBox) legendBox.innerHTML = "";
+        return;
+      }
+      legendBlock.classList.add("visible");
+      legendBox.innerHTML = `
+        <details class="exp-item legend-item" open>
+          <summary>${esc(legend.title)}</summary>
+          <div class="exp-body">
+            <p><strong>Button / Control Map:</strong> ${esc(legend.baseline)}</p>
+            <p><strong>Action / Environment Change:</strong> ${esc(legend.variable)}</p>
+            <p><strong>Expected Result:</strong> ${esc(legend.observation)}</p>
+          </div>
+        </details>
+      `;
+    }
+
+    function renderExperimentChecklist(experiments) {
+      const allExperiments = Array.isArray(experiments) ? experiments : [];
+      let checklist = allExperiments;
+      let legend = null;
+
+      if (allExperiments.length > 0 && /legend/i.test(allExperiments[0].title || "")) {
+        legend = allExperiments[0];
+        checklist = allExperiments.slice(1);
+      }
+
+      renderLegendItem(legend);
+
+      if (checklist.length === 0) {
+        expList.innerHTML = `<div class="exp-empty">No experiments configured for this project yet.</div>`;
+        return;
+      }
+      expList.innerHTML = checklist.map((exp, idx) => `
+        <details class="exp-item"${idx === 0 ? " open" : ""}>
+          <summary>${esc(exp.title)}</summary>
+          <div class="exp-body">
+            <p><strong>Baseline:</strong> ${esc(exp.baseline)}</p>
+            <p><strong>Variable:</strong> ${esc(exp.variable)}</p>
+            <p><strong>Observation:</strong> ${esc(exp.observation)}</p>
+          </div>
+        </details>
+      `).join("");
+    }
+
+    function applyProjectToUI(project) {
+      const safeName = project.name || `function${Number(project.id)}`;
+      hubName.textContent = safeName;
+      const orderText = Number.isFinite(project.order) ? `Step ${project.order}` : `Project ${project.id}`;
+      hubMeta.textContent = `${orderText} | ${project.tag}`;
+      selectedText.textContent = `Project ${project.id} selected`;
+      diagramA.textContent = project.learn.diagramA;
+      diagramB.textContent = project.learn.diagramB;
+      conceptText.textContent = project.learn.coreConcept;
+      whyItWorksText.textContent = project.learn.whyItWorks;
+      keyInsightText.textContent = project.learn.keyInsight;
+      realWorldText.textContent = project.learn.realWorldApplication;
+      pipeInput.textContent = project.learn.pipeline.input;
+      pipeLogic.textContent = project.learn.pipeline.process;
+      pipeOutput.textContent = project.learn.pipeline.output;
+      const hasPdf = Boolean(project.learn.pdf);
+      pdfBtn.style.display = hasPdf ? "inline-flex" : "none";
+      if (hasPdf) {
+        pdfBtn.href = project.learn.pdf;
+        pdfBtn.setAttribute("download", `${safeName}-chart.pdf`);
+      }
+      const mergedFlow = [...toTextList(project.code.logicFlow), ...toTextList(project.howItWorks.steps)];
+      const uniqueFlow = [...new Set(mergedFlow.map((line) => line.trim()).filter(Boolean))];
+      renderPointLines(logicFlowList, uniqueFlow, "Logic flow details are pending.");
+      if (logicFlowNote) {
+        logicFlowNote.textContent = "Read input -> Process logic -> Drive output";
+      }
+      renderInlineText(hardwareRequired, project.hardware.required, "No required hardware listed yet.");
+      renderList(hardwareOptional, project.hardware.optional, "No optional hardware listed yet.");
+      renderInlineText(variablesList, project.howItWorks.variables, "No key variables listed yet.");
+
+      const observeRows = [];
+      if (project.observe.visual.led) observeRows.push({ label: "LED", text: project.observe.visual.led });
+      if (project.observe.visual.buzzer) observeRows.push({ label: "Buzzer", text: project.observe.visual.buzzer });
+      renderPointLines(
+        observeList,
+        observeRows.map((item) => `${item.label}: ${item.text}`),
+        "No visual or audio observation notes available yet."
+      );
+
+      const observeDataInfo = [];
+      if (project.observe.data.type && project.observe.data.type !== "none") observeDataInfo.push(`Data: ${project.observe.data.type}`);
+      if (project.observe.data.description) observeDataInfo.push(project.observe.data.description);
+      if (project.observe.data.parameters.length > 0) observeDataInfo.push(`Watch: ${project.observe.data.parameters.join(", ")}`);
+      observeDataText.textContent = observeDataInfo.length > 0
+        ? observeDataInfo.join(" | ")
+        : "No serial/data output configured for this project.";
+
+      renderPointLines(runStepsList, project.run.steps, "No run steps configured yet.");
+      expectedText.textContent = project.run.expected || "Expected result not configured yet.";
+
+      renderExperimentChecklist(project.explore.experiments);
+    }
+
+    function setStatus(state, label) {
+      statusPill.className = `pill ${state}`;
+      statusText.textContent = label;
+    }
+
+    function setProgress(pct, label, note) {
+      progressWrap.classList.add("visible");
+      progressBar.style.width = `${pct}%`;
+      progressPct.textContent = `${pct}%`;
+      progressLabel.textContent = label;
+      progressNote.textContent = note;
+    }
+
+    function log(msg, cls = "info") {
+      const now = new Date().toTimeString().slice(0, 8);
+      const row = document.createElement("div");
+      row.className = `line ${cls}`;
+      row.innerHTML = `<span class="time">${now}</span><span class="msg">${msg}</span>`;
+      logBox.appendChild(row);
+      while (logBox.childElementCount > MAX_LOG_LINES) {
+        logBox.removeChild(logBox.firstElementChild);
+      }
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function clearResetTimer() {
+      clearTimeout(resetTimer);
+      resetTimer = null;
+    }
+
+    function resetVisualState() {
+      progressWrap.classList.remove("visible");
+      progressBar.classList.remove("indeterminate");
+      progressBar.style.width = "0%";
+      progressPct.textContent = "";
+      progressLabel.textContent = "Waiting...";
+      progressNote.textContent = "Waiting for connection...";
+      setStatus("disconnected", "Disconnected");
+    }
+
+    function scheduleVisualReset() {
+      clearResetTimer();
+      resetTimer = setTimeout(() => {
+        if (isFlashing) return;
+        resetVisualState();
+      }, 5000);
+    }
+
+    function setFlashingLock(locked) {
+      isFlashing = locked;
+      if (menu) menu.classList.toggle("locked", locked);
+      const sb = document.getElementById("serialConnectBtn");
+      if (sb) sb.disabled = locked;
+    }
+
+    // ── SERIAL MONITOR ──
+    function updateSerialUI(connected) {
+      const btn = document.getElementById("serialConnectBtn");
+      const status = document.getElementById("serialStatus");
+      if (btn) {
+        btn.textContent = connected ? "Disconnect" : "Connect";
+        btn.classList.toggle("active", connected);
+      }
+      if (status) {
+        status.textContent = connected ? "● Connected" : "● Not connected";
+        status.classList.toggle("on", connected);
+      }
+    }
+
+    function logSerial(msg, cls = "") {
+      const box = document.getElementById("serialLog");
+      if (!box) return;
+      const now = new Date().toTimeString().slice(0, 8);
+      const row = document.createElement("div");
+      row.className = `sline${cls ? " " + cls : ""}`;
+      row.innerHTML = `<span class="stime">${now}</span><span class="smsg">${msg}</span>`;
+      box.appendChild(row);
+      while (box.childElementCount > 200) box.removeChild(box.firstElementChild);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearSerialLog() {
+      const box = document.getElementById("serialLog");
+      if (box) box.innerHTML = "";
+    }
+
+    function processSerialLine(line) {
+      if (!line) return;
+      const start = line.indexOf("{");
+      if (start === -1) return; // no JSON object — boot text, self-test, drop silently
+      try {
+        const t = JSON.parse(line.slice(start));
+        const parts = Object.entries(t).map(([k, v]) => `${k}:${v}`).join("  ");
+        logSerial(parts, "telem");
+      } catch (_) {
+        // Malformed — drop silently
+      }
+    }
+
+    async function readSerialLoop() {
+      // Direct reader from serialPort.readable — we own the lock,
+      // so cancel() reliably releases it and port.close() works.
+      const decoder = new TextDecoder();
+      serialReader = serialPort.readable.getReader();
+      try {
+        while (isMonitoring) {
+          const { value, done } = await serialReader.read();
+          if (done) break;
+          serialBuffer += decoder.decode(value, { stream: true });
+          let idx;
+          while ((idx = serialBuffer.indexOf("\n")) !== -1) {
+            const line = serialBuffer.slice(0, idx).replace(/\r$/, "").trim();
+            serialBuffer = serialBuffer.slice(idx + 1);
+            processSerialLine(line);
+          }
+        }
+      } catch (e) {
+        if (isMonitoring) logSerial("Connection lost.", "swarn");
+      } finally {
+        try { serialReader.releaseLock(); } catch (_) {}
+        serialReader = null;
+        isMonitoring = false;
+        updateSerialUI(false);
+      }
+    }
+
+    async function connectSerial() {
+      if (!navigator.serial) {
+        logSerial("Web Serial not supported. Use Chrome or Edge.", "serr");
+        return;
+      }
+      try {
+        serialPort = await navigator.serial.requestPort();
+        await serialPort.open({ baudRate: 115200 });
+        isMonitoring = true;
+        serialBuffer = "";
+        updateSerialUI(true);
+        logSerial("Connected at 115200 baud. Waiting for data...");
+        readSerialLoop();
+      } catch (e) {
+        serialPort = null;
+        logSerial("Could not connect: " + (e.message || e), "serr");
+      }
+    }
+
+    async function disconnectSerial() {
+      isMonitoring = false;
+      // Step 1 — cancel the reader: this releases the readable lock
+      if (serialReader) {
+        try { await serialReader.cancel(); } catch (_) {}
+        try { serialReader.releaseLock(); } catch (_) {}
+        serialReader = null;
+      }
+      // Step 2 — close the port: only works after readable is unlocked
+      if (serialPort) {
+        try { await serialPort.close(); } catch (_) {}
+        serialPort = null;
+      }
+      serialBuffer = "";
+      updateSerialUI(false);
+      logSerial("Disconnected.", "swarn");
+    }
+
+    function toggleSerial() {
+      if (isMonitoring) disconnectSerial();
+      else connectSerial();
+    }
+
+    function updateManifest() {
+      if (!flashBtn || !selected) return;
+      const commonBase = new URL("./firmware/common/", location.href).toString();
+      const projBase = new URL(`./firmware/${selected.id}/`, location.href).toString();
+      const manifest = {
+        name: selected.name,
+        version: "1.0",
+        builds: [{ chipFamily: "ESP32", parts: [
+          { path: new URL("bootloader.bin", commonBase).toString(), offset: 0x1000 },
+          { path: new URL("partitions.bin", projBase).toString(), offset: 0x8000 },
+          { path: new URL("boot_app0.bin", commonBase).toString(), offset: 0xE000 },
+          { path: new URL("app.bin", projBase).toString(), offset: 0x10000 }
+        ] }]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+      if (flashBtn.manifest) URL.revokeObjectURL(flashBtn.manifest);
+      flashBtn.manifest = URL.createObjectURL(blob);
+    }
+    async function selectProject(id, silent = false) {
+      if (isFlashing) {
+        if (!silent) log("Project switch blocked while flashing is active.", "warn");
+        return;
+      }
+      const exists = PROJECT_INDEX.some((p) => p.id === id);
+      if (!exists) return;
+      const requestId = ++selectRequestId;
+
+      document.querySelectorAll(".item").forEach((el) => {
+        el.classList.toggle("active", el.dataset.id === id);
+      });
+
+      const loaded = await loadProjectData(id);
+      if (requestId !== selectRequestId) return;
+      selected = loaded;
+      applyProjectToUI(loaded);
+      updateManifest();
+      if (!silent) log(`Project changed to ${selected.name}`);
+    }
+
+    function renderMenu() {
+      projectList.innerHTML = projectMenu.map((p) => `
+        <div class="item" data-id="${p.id}">
+          <div class="item-num">PROJECT ${p.id}</div>
+          <div class="item-name">${esc(p.name)}</div>
+          <div class="item-tag">${esc(p.tag)}</div>
+        </div>
+      `).join("");
+
+      projectList.querySelectorAll(".item").forEach((el) => {
+        el.addEventListener("click", () => selectProject(el.dataset.id));
+      });
+      projectCount.textContent = `${PROJECT_INDEX.length} Projects`;
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+        document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.id === `tab-${tab}`));
+      });
+    });
+
+    if (flashBtn) {
+      flashBtn.addEventListener("state-changed", (e) => {
+        const s = e.detail && e.detail.state;
+
+        // ── Port selection / initial connect ──
+        if (s === "port" || s === "connecting" || s === "initializing") {
+          // Auto-release serial port so esp-web-tools can claim it
+          if (isMonitoring) { disconnectSerial(); logSerial("Auto-disconnected — flashing starting.", "swarn"); }
+          clearResetTimer();
+          setStatus("connecting", "Connecting");
+          progressWrap.classList.add("visible");
+          progressBar.classList.remove("indeterminate");
+          progressBar.style.width = "4%";
+          progressPct.textContent = "";
+          progressLabel.textContent = "Connecting";
+          progressNote.textContent = "Select your ESP32 port in the browser popup.";
+          log("Waiting for serial port selection", "info");
+          return;
+        }
+
+        // ── Erasing flash ──
+        if (s === "erasing") {
+          setFlashingLock(true);
+          setStatus("flashing", "Erasing");
+          progressBar.classList.add("indeterminate");
+          progressPct.textContent = "";
+          progressLabel.textContent = "Erasing";
+          progressNote.textContent = "Erasing flash memory — do not unplug.";
+          log("Erasing flash. Do not unplug the board.", "warn");
+          return;
+        }
+
+        // ── Writing firmware (real percentage) ──
+        if (s === "writing" || s === "install" || s === "flashing") {
+          setFlashingLock(true);
+          setStatus("flashing", "Writing");
+          progressBar.classList.remove("indeterminate");
+          const pct = Math.round((e.detail && e.detail.details && e.detail.details.percentage) || 0);
+          progressBar.style.width = (pct > 0 ? pct : 20) + "%";
+          progressPct.textContent = pct > 0 ? pct + "%" : "";
+          progressLabel.textContent = "Writing";
+          progressNote.textContent = "Writing firmware — do not unplug.";
+          if (s !== "writing") log("Flashing in progress. Do not unplug the board.", "warn");
+          return;
+        }
+
+        // ── Done ──
+        if (s === "done") {
+          setFlashingLock(false);
+          progressBar.classList.remove("indeterminate");
+          progressBar.style.width = "100%";
+          progressPct.textContent = "100%";
+          progressLabel.textContent = "Done";
+          progressNote.textContent = "Flash complete. Board is restarting — connect serial to see output.";
+          setStatus("connected", "Done");
+          log(`${selected.name} flashed successfully`, "success");
+          scheduleVisualReset();
+          return;
+        }
+
+        // ── Error ──
+        if (s === "error") {
+          setFlashingLock(false);
+          progressBar.classList.remove("indeterminate");
+          progressBar.style.width = "0%";
+          progressPct.textContent = "";
+          progressLabel.textContent = "Error";
+          progressNote.textContent = "Flash failed. Check cable and retry.";
+          setStatus("disconnected", "Error");
+          log("Flash error. Verify USB cable and selected port.", "error");
+          scheduleVisualReset();
+        }
+      });
+    }
+
+    (async () => {
+      await preloadProjectMenu();
+      renderMenu();
+      await selectProject(PROJECT_INDEX[0].id, true);
+      setStatus("disconnected", "Disconnected");
+      log("Flash hub ready. Select a project and open Flash & Play.", "info");
+    })();
+
+    
+  </script>
+</body>
+</html>

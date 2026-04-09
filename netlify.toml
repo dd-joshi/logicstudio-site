@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/flux-v1"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/flash"
+  to = "/flash/"
+  status = 301
+  force = true

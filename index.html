@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLUX v1 — ESP32 Kit That Works Before You Code</title>
+  <meta name="description"
+    content="Flash 12 complete embedded devices from your browser in 60 seconds. No IDE. No setup. Real production firmware on real hardware.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --bg2: #FFFFFF;
+      --bg3: #F1F5F9;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --border2: #CBD5E1;
+      --text: #0F172A;
+      --text2: #475569;
+      --text3: #64748B;
+      --accent: #EA580C;
+      --accent2: #C2410C;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --blue: #2563EB;
+      --fs-body: 14px;
+      --fs-body-mobile: 16px;
+      --fs-micro: 13px;
+      --lh-body: 1.5;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+
+    .t-body,
+    .proof-pill-text,
+    .ai-limits li,
+    .final-price-note,
+    .final-micros,
+    .faq-a-inner,
+    .fn-card-desc,
+    .trust-desc,
+    .price-note,
+    #kit p,
+    #kit .box-item-desc,
+    #kit .sensor-line-text,
+    .why-step-text,
+    .fn-strip-desc,
+    .ai-vis-prompt {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      color: var(--text2);
+    }
+
+    .t-micro,
+    .footer-brand,
+    .footer-links a,
+    .section-label,
+    .ai-tag,
+    .pay-badge,
+    .nav-logo,
+    .nav-links a,
+    .btn-ghost,
+    .hero-img-placeholder span,
+    .box-img-placeholder span,
+    .box-item-num,
+    .faq-icon,
+    .wa-label,
+    .payment-inline,
+    .fn-see-all {
+      font-size: var(--fs-micro);
+      line-height: 1.4;
+      color: var(--text3);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      color: var(--text2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .nav-cta:hover {
+      background: var(--accent2);
+      transform: translateY(-1px);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-console {
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      padding: 8px 16px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .nav-console:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(255, 138, 0, 0.08);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 56px);
+      max-height: 780px;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 56px 60px 56px;
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 3.8vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text2);
+      max-width: 400px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      letter-spacing: 0.5px;
+    }
+
+    .badge.green {
+      border-color: rgba(61, 186, 122, 0.35);
+      color: var(--green);
+    }
+
+    .badge.blue {
+      border-color: rgba(74, 158, 255, 0.35);
+      color: var(--blue);
+    }
+
+    .badge.amber {
+      border-color: rgba(255, 138, 0, 0.35);
+      color: var(--amber);
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px 32px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.3px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      color: var(--text2);
+      font-size: var(--fs-micro);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+    }
+
+    .btn-ghost::after {
+      content: '↓';
+    }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg2);
+    }
+
+    .hero-img {
+      width: 90%;
+      max-width: 480px;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.6));
+      animation: floatUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .hero-img-placeholder {
+      width: 86%;
+      max-width: 460px;
+      aspect-ratio: 4/3;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      animation: floatUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .hero-img-placeholder span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      color: var(--text3);
+      letter-spacing: 1px;
+    }
+
+    @keyframes floatUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 56px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-full {
+      position: relative;
+      z-index: 1;
+      padding: 80px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 14px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    h2 {
+      font-size: clamp(24px, 2.8vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .section-sub {
+      font-size: 14px;
+      color: var(--text2);
+      max-width: 560px;
+      margin-bottom: 48px;
+      line-height: 1.7;
+    }
+
+    /* ── FUNCTIONS + PROOF (merged) ── */
+    .fn-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: end;
+      margin-bottom: 40px;
+    }
+
+    .fn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .fn-card {
+      background: var(--bg2);
+      padding: 18px 20px;
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .fn-card:hover {
+      background: var(--bg3);
+    }
+
+    .fn-card-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .fn-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .fn-card-desc {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .fn-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 7px;
+      letter-spacing: 0.3px;
+      display: inline-block;
+    }
+
+    .tag-signal {
+      background: rgba(74, 158, 255, 0.12);
+      color: var(--blue);
+    }
+
+    .tag-thresh {
+      background: rgba(255, 138, 0, 0.12);
+      color: var(--amber);
+    }
+
+    .tag-state {
+      background: rgba(255, 138, 0, 0.12);
+      color: var(--accent2);
+    }
+
+    .tag-time {
+      background: rgba(61, 186, 122, 0.12);
+      color: var(--green);
+    }
+
+    .tag-analysis {
+      background: rgba(180, 130, 255, 0.15);
+      color: #c49fff;
+    }
+
+    .proof-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .proof-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border2);
+      padding: 14px 18px;
+      background: var(--bg2);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .proof-pill-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .proof-pill-text {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .proof-pill-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── WHAT'S IN THE BOX ── */
+    .box-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .box-left {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .box-right {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .box-title {
+      margin: 0;
+    }
+
+    #kit p,
+    #kit .box-item-desc,
+    #kit .sensor-line-text {
+      font-size: var(--fs-body);
+      line-height: 1.5;
+    }
+
+    .box-img-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .box-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .box-img-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .box-img-placeholder span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      color: #a8a39a;
+      letter-spacing: 1px;
+    }
+
+    .box-items {
+      list-style: none;
+    }
+
+    .box-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .box-item:last-child {
+      border-bottom: none;
+    }
+
+    .box-item-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .box-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .box-item-desc {
+      color: #b3afa6;
+      line-height: 1.5;
+    }
+
+    .sensor-line {
+      padding: 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .sensor-line-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #a8a39a;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .sensor-line-text {
+      color: #b3afa6;
+      line-height: 1.5;
+    }
+
+    .price-tag {
+      margin-top: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 138, 0, 0.3);
+      background: rgba(255, 138, 0, 0.05);
+    }
+
+    .price-amount {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .price-note {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      margin-top: 2px;
+      line-height: var(--lh-body);
+    }
+
+    /* ── AI CODER ── */
+    .ai-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ai-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 56px;
+    }
+
+    .ai-tag {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      background: rgba(180, 130, 255, 0.15);
+      color: #c49fff;
+      margin-bottom: 16px;
+    }
+
+    .ai-title {
+      font-size: clamp(22px, 2.2vw, 30px);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: 16px;
+    }
+
+    .ai-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .ai-example {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+    }
+
+    .ai-example-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .ai-example-query {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: #c49fff;
+      line-height: 1.5;
+    }
+
+    .ai-limits {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ai-limits li {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+      padding: 2px 0;
+    }
+
+    .ai-limits li::before {
+      content: '✓';
+      color: var(--green);
+      flex-shrink: 0;
+      font-size: var(--fs-micro);
+      margin-top: 2px;
+    }
+
+    .ai-visual {
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      padding: 18px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ai-vis-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .ai-vis-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .ai-vis-prompt {
+      background: var(--bg3);
+      padding: 10px 12px;
+      font-size: var(--fs-body);
+      color: var(--text2);
+      margin-bottom: 8px;
+      border-left: 2px solid #c49fff;
+    }
+
+    .ai-vis-prompt strong {
+      color: #c49fff;
+    }
+
+    .ai-vis-response {
+      font-size: 12px;
+      color: #3dba7a;
+      line-height: 1.45;
+      margin: 0;
+      max-height: 180px;
+      white-space: pre;
+      overflow-y: auto;
+      overflow-x: auto;
+      tab-size: 2;
+    }
+
+    .btn-ai {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 12px 24px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+      border-radius: 4px;
+    }
+
+    .btn-ai:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--bg);
+    }
+
+    .btn-ai::after {
+      content: '→';
+    }
+
+    /* ── TRUST TILES ── */
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .trust-tile {
+      background: var(--bg2);
+      padding: 28px 24px;
+    }
+
+    .trust-icon {
+      font-size: 20px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .trust-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .trust-desc {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .payment-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .payment-inline {
+      font-size: var(--fs-micro);
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .pay-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      padding: 5px 12px;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+    }
+
+    /* ── WHY FLUX ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+
+    .why-col {
+      background: var(--bg2);
+      padding: 36px 32px;
+    }
+
+    .why-col.them {
+      background: var(--bg3);
+    }
+
+    .why-col.us {
+      background: var(--bg2);
+    }
+
+    .why-col-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .why-col.them .why-col-label {
+      color: var(--text3);
+    }
+
+    .why-col.us .why-col-label {
+      color: var(--accent);
+    }
+
+    .why-col-label::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 1px;
+    }
+
+    .why-col.them .why-col-label::before {
+      background: var(--text3);
+    }
+
+    .why-col.us .why-col-label::before {
+      background: var(--accent);
+    }
+
+    .why-media-text {
+      margin-bottom: 24px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 1px;
+    }
+
+    .why-img-slot {
+      aspect-ratio: 4/3;
+      border: 1px dashed var(--border2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: var(--bg);
+    }
+
+    .why-img-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .why-img-slot span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 1px;
+    }
+
+    .why-steps {
+      list-style: none;
+    }
+
+    .why-step {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .why-step:last-child {
+      border-bottom: none;
+    }
+
+    .why-step-day {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--text3);
+      flex-shrink: 0;
+      padding-top: 3px;
+      min-width: 126px;
+      white-space: nowrap;
+    }
+
+    .why-col.us .why-step-day {
+      color: var(--accent);
+    }
+
+    .why-step-text {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+
+    .why-col.us .why-step-text {
+      color: var(--text);
+    }
+
+    .why-step-text s {
+      color: var(--text3);
+      text-decoration-color: var(--text3);
+    }
+
+    /* compact fn strip */
+    .fn-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .fn-strip-card {
+      background: var(--bg2);
+      padding: 16px 18px;
+      transition: background 0.2s;
+    }
+
+    .fn-strip-card:hover {
+      background: var(--bg3);
+    }
+
+    .fn-strip-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 6px;
+    }
+
+    .fn-strip-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .fn-strip-desc {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .fn-see-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 138, 0, 0.3);
+      padding-bottom: 1px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .fn-see-all:hover {
+      color: var(--accent2);
+      border-color: var(--accent2);
+    }
+
+    .fn-see-all::after {
+      content: '→';
+    }
+
+    @media (max-width: 900px) {
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fn-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .fn-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── FAQ ── */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      padding: 20px 0;
+      cursor: pointer;
+      text-align: left;
+      gap: 16px;
+    }
+
+    .faq-q-text {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      transition: color 0.2s;
+    }
+
+    .faq-item.open .faq-q-text {
+      color: var(--accent2);
+    }
+
+    .faq-icon {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: var(--fs-micro);
+      color: var(--text2);
+      transition: transform 0.3s, border-color 0.2s;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-a-inner {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+      padding-bottom: 20px;
+      max-width: 640px;
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      text-align: center;
+      padding: 100px 40px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--accent));
+    }
+
+    .final-cta h2 {
+      font-size: clamp(28px, 3.5vw, 46px);
+      margin-bottom: 16px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .final-cta-sub {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 40px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .final-price-block {
+      margin-bottom: 28px;
+    }
+
+    .final-price {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 42px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -1px;
+    }
+
+    .final-price-note {
+      font-size: var(--fs-body);
+      color: var(--text2);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .final-micros {
+      margin-top: 20px;
+      font-size: var(--fs-body);
+      color: var(--text2);
+      line-height: 1.5;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .final-micros span::before {
+      content: '· ';
+    }
+
+    .final-micros span:first-child::before {
+      content: '';
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 28px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-micro);
+      color: var(--text3);
+    }
+
+    .footer-brand a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: var(--fs-micro);
+      color: var(--text3);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--text2);
+    }
+
+    /* ── WHATSAPP FLOAT ── */
+    .wa-float {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      text-decoration: none;
+      overflow: hidden;
+    }
+
+    .wa-btn {
+      width: 52px;
+      height: 52px;
+      background: #25d366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .wa-float:hover .wa-btn {
+      background: #20bf5c;
+    }
+
+    .wa-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    .wa-label {
+      height: 52px;
+      background: #1da851;
+      padding: 0 16px;
+      font-size: var(--fs-micro);
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      max-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: max-width 0.3s ease, padding 0.3s ease;
+    }
+
+    .wa-float:hover .wa-label {
+      max-width: 140px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-console {
+        display: none;
+      }
+
+      .nav-actions {
+        gap: 0;
+      }
+
+      .nav-cta {
+        display: inline-block;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        max-height: none;
+      }
+
+      .hero-left {
+        padding: 48px 24px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hero-right {
+        height: 260px;
+      }
+
+      .hero-img-placeholder {
+        width: 100%;
+        height: 100%;
+      }
+
+      .section,
+      .ai-inner {
+        padding: 56px 24px;
+      }
+
+      .section-full {
+        padding: 56px 24px;
+      }
+
+      .fn-header {
+        grid-template-columns: 1fr;
+        gap: 0;
+        margin-bottom: 28px;
+      }
+
+      .fn-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .box-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .ai-inner {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .ai-visual {
+        padding: 14px;
+      }
+
+      .ai-vis-response {
+        max-height: 160px;
+        font-size: 11px;
+      }
+
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+
+      .t-body,
+      .proof-pill-text,
+      .ai-limits li,
+      .final-price-note,
+      .final-micros,
+      .faq-a-inner,
+      .fn-card-desc,
+      .trust-desc,
+      .price-note,
+      #kit p,
+      #kit .box-item-desc,
+      #kit .sensor-line-text,
+      .why-step-text,
+      .fn-strip-desc,
+      .ai-vis-prompt {
+        font-size: var(--fs-body-mobile);
+      }
+
+      .fn-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .proof-row {
+        gap: 10px;
+      }
+
+      .proof-pill {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══ NAV ══ -->
+  <nav>
+    <a href="./" class="nav-logo">LOGIC <span>|</span> STUDIO</a>
+    <ul class="nav-links">
+      <li><a href="#functions">Functions</a></li>
+      <li><a href="#kit">Kit</a></li>
+      <li><a href="#ai-coder">AI Coder</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="flash/" class="nav-console">FLUX Console</a>
+      <a href="https://www.instamojo.com" target="_blank" rel="noopener noreferrer" class="nav-cta">Get FLUX v1</a>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Zero-Setup ESP32 Launchpad</div>
+      <h1>FLUX v1<br><em>Works Before<br>You Code</em></h1>
+      <p class="hero-sub">“12 built-in functions, guided modules, and an AI helper—everything ready from day one, delivering an unmatched learning experience.”</p>
+      <div class="hero-badges">
+        <span class="badge green">Just 60 Seconds</span>
+        <span class="badge blue">Browser Flash</span>
+        <span class="badge amber">Direct Support</span>
+      </div>
+      <div class="hero-cta-group">
+        <a href="https://www.instamojo.com" target="_blank" rel="noopener noreferrer" class="btn-primary">Get FLUX v1 — ₹1,999</a>
+        <a href="#functions" class="btn-ghost">See 12 functions</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <!-- Replace src with actual product image path -->
+      <img src="assets/flux-v1/hero/flux-v1-hero.png" alt="FLUX v1 in white acrylic enclosure" class="hero-img"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="hero-img-placeholder" style="display:none">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="8" y="8" width="32" height="32" rx="4" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+          <rect x="14" y="14" width="20" height="20" rx="2" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+          <circle cx="24" cy="24" r="5" stroke="rgba(255,138,0,0.4)" stroke-width="1.5" />
+        </svg>
+        <span>[ PRODUCT PHOTO ]</span>
+        <span style="font-size:11px;color:var(--text3)">add assets/flux-v1/hero/flux-v1-hero.png</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WHY FLUX ══ -->
+  <div style="background:var(--bg2); border-bottom:1px solid var(--border);">
+    <div class="section" style="border:none;">
+      <div class="section-label">Why FLUX exists</div>
+      <h2 style="margin-bottom:12px;">Every electronics kit<br>ends up in a drawer.</h2>
+      <p class="section-sub">Here's why — and how FLUX fixes it.</p>
+
+      <div class="why-grid">
+        <!-- LEFT: The generic kit journey -->
+        <div class="why-col them">
+          <div class="why-col-label">Generic kit + Arduino</div>
+
+          <p class="why-media-text">The Old Way</p>
+
+          <ul class="why-steps">
+            <li class="why-step">
+              <span class="why-step-day">Day 1</span>
+              <span class="why-step-text">Buy components, jumper wires, Arduino. Connect everything on a
+                breadboard.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 1–2</span>
+              <span class="why-step-text">Install the IDE. Hunt for drivers. Deal with COM port conflicts. Restart your
+                PC.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 2</span>
+              <span class="why-step-text">Copy-paste works once. Maybe. </span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 3</span>
+              <span class="why-step-text">Try something new. Pins/Library conflict. One loose jumper wire and nothing
+                works.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 7</span>
+              <span class="why-step-text"><s>Kit goes into the drawer. Momentum is broken.</s></span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- RIGHT: FLUX journey -->
+        <div class="why-col us">
+          <div class="why-col-label">FLUX v1</div>
+
+          <p class="why-media-text">The FLUX Way</p>
+
+          <ul class="why-steps">
+            <li class="why-step">
+              <span class="why-step-day">Day 1</span>
+              <span class="why-step-text">Unbox, plug in USB, open browser - flash your first working function.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 1</span>
+              <span class="why-step-text">Monitor serial telemetry with same web console. Observe data and hardware
+                logic instantly.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 1</span>
+              <span class="why-step-text">Explore more functions. Swap between behaviors on the same hardware.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 7</span>
+              <span class="why-step-text">Detach the HAT. Write your own code. ESP32 is free to use.</span>
+            </li>
+            <li class="why-step">
+              <span class="why-step-day">Day 30 and Beyond</span>
+              <span class="why-step-text">Concepts are validated. Projects you can explain and demo. FLUX was just the
+                beginning...</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FUNCTIONS STRIP ══ -->
+  <div id="functions" style="background:var(--bg); border-bottom:1px solid var(--border);">
+    <div class="section" style="border:none;">
+      <div
+        style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div class="section-label">12 Functions</div>
+          <h2 style="margin-bottom:0;">Use like a tool.<br> Learn the logic.</h2>
+        </div>
+        <a href="flash/" class="fn-see-all">See all 12 with full details on the Flash page</a>
+      </div>
+
+      <div class="fn-strip">
+        <div class="fn-strip-card">
+          <div class="fn-strip-num">04</div>
+          <div class="fn-strip-name">Clap Switch</div>
+          <div class="fn-strip-desc">Clap your hands — the light reacts. Adjust sensitivity with the knob.</div>
+          <span class="fn-tag tag-thresh">THRESHOLD→DECISION</span>
+        </div>
+        <div class="fn-strip-card">
+          <div class="fn-strip-num">06</div>
+          <div class="fn-strip-name">Light/Dark Alarm</div>
+          <div class="fn-strip-desc">Cover the sensor — the buzzer screams and LEDs flash like a police strobe.</div>
+          <span class="fn-tag tag-thresh">THRESHOLD→DECISION</span>
+        </div>
+        <div class="fn-strip-card">
+          <div class="fn-strip-num">08</div>
+          <div class="fn-strip-name">Breathing Light</div>
+          <div class="fn-strip-desc">LEDs glow in and out like breathing. Smooth, calming light effect.</div>
+          <span class="fn-tag tag-time">TIME→BEHAVIOR</span>
+        </div>
+        <div class="fn-strip-card">
+          <div class="fn-strip-num">12</div>
+          <div class="fn-strip-name">Swar Purity Trainer</div>
+          <div class="fn-strip-desc">Sing or play a note — the board tells you how accurate your pitch is. 1 Hz
+            resolution.</div>
+          <span class="fn-tag tag-analysis">SIGNAL→ANALYSIS</span>
+        </div>
+      </div>
+
+      <div class="proof-row">
+        <div class="proof-pill">
+          <div class="proof-pill-dot"></div>
+          <div class="proof-pill-text"><strong>Real embedded engineering.</strong> The same techniques used in
+            professional firmware, not hobby tutorials.</div>
+        </div>
+        <div class="proof-pill">
+          <div class="proof-pill-dot"></div>
+          <div class="proof-pill-text"><strong>Live telemetry for function.</strong> Direct on same FLASH webpage — each
+            function outputs input_value, process, output_level.</div>
+        </div>
+        <div class="proof-pill">
+          <div class="proof-pill-dot"></div>
+          <div class="proof-pill-text"><strong>See what you'll learn.</strong> All 12 functions with related concept
+            learning material.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WHAT'S IN THE BOX ══ -->
+  <div id="kit" style="background:var(--bg);">
+    <div class="section" style="border:none;">
+      <div class="section-label">Kit Contents</div>
+      <div class="box-grid">
+        <div class="box-left">
+          <div class="sensor-line">
+            <div class="sensor-line-label">On-board sensors</div>
+            <div class="sensor-line-text">LDR · INMP441 I2S microphone · 10kΩ potentiometer · tactile button · passive
+              buzzer · 7× WS2812B RGB LEDs</div>
+          </div>
+          <div class="box-img-wrap">
+            <!-- Replace src with actual flatlay image -->
+            <img src="assets/flux-v1/screens/flash-page-preview.png" alt="FLUX v1 kit contents" class="box-img"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="box-img-placeholder" style="display:none">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="32" height="32" rx="3" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                <path d="M4 16 L36 16" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+                <path d="M14 16 L14 36" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+              </svg>
+              <span>[ FLATLAY PHOTO ]</span>
+              <span style="font-size:11px;color:var(--text3)">add assets/flux-v1/screens/flash-page-preview.png</span>
+            </div>
+          </div>
+        </div>
+        <div class="box-right">
+          <h2 class="box-title">Everything included.<br>Nothing extra to buy.</h2>
+          <ul class="box-items">
+            <li class="box-item">
+              <span class="box-item-num">01</span>
+              <div>
+                <div class="box-item-name">FLUX v1 HAT — acrylic enclosure</div>
+                <div class="box-item-desc">Assembled 4-standoff acrylic frame. Ships tested and ready to flash.</div>
+              </div>
+            </li>
+            <li class="box-item">
+              <span class="box-item-num">02</span>
+              <div>
+                <div class="box-item-name">ESP32 WROOM-32</div>
+                <div class="box-item-desc">Pre-flashed for the Web Flasher. Standard 38-pin headers for custom code.
+                </div>
+              </div>
+            </li>
+            <li class="box-item">
+              <span class="box-item-num">03</span>
+              <div>
+                <div class="box-item-name">Micro-USB data cable</div>
+                <div class="box-item-desc">Comes with USB 2.0 data-cable, no cable hunting required.</div>
+              </div>
+            </li>
+            <li class="box-item">
+              <span class="box-item-num">04</span>
+              <div>
+                <div class="box-item-name">Flash in 60 seconds. Understand in 60 minutes. Build your own in 60 days.</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AI CODER ══ -->
+  <div id="ai-coder" class="ai-section">
+    <div class="ai-inner">
+      <div class="ai-tag">⚡ New — AI-Assisted Coding</div>
+      <h2 class="ai-title">Describe it. Copy it. Build it.</h2>
+      <p class="ai-desc">Tuned to FLUX hardware · No hallucinated GPIO · Knows your exact pins</p>
+      <ol style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:20px;margin-bottom:4px;">
+        <li
+          style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3);display:flex;gap:10px;align-items:baseline;">
+          <span style="color:var(--accent);min-width:16px;">1.</span> Type your idea in plain English below
+        </li>
+        <li
+          style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3);display:flex;gap:10px;align-items:baseline;">
+          <span style="color:var(--accent);min-width:16px;">2.</span> Hit Copy Prompt — your FLUX pin context is added
+          automatically
+        </li>
+        <li
+          style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3);display:flex;gap:10px;align-items:baseline;">
+          <span style="color:var(--accent);min-width:16px;">3.</span> Open ChatGPT, Gemini, or Claude → paste → get
+          working code
+        </li>
+      </ol>
+      <textarea id="ai-prompt-input" placeholder="Describe your idea — e.g. turn on white LED when pot crosses 50%"
+        style="width:100%;min-height:96px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:14px 16px;resize:vertical;margin-top:24px;outline:none;line-height:1.6;"></textarea>
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:center;">
+        <button type="button" class="btn-ai" onclick="copyFluxPrompt(event)">Copy Prompt</button>
+        <span id="ai-copy-confirm"
+          style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green);opacity:0;transition:opacity 0.3s;">Copied
+          — paste into any AI</span>
+      </div>
+      <p
+        style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);line-height:1.8;">
+        Before uploading in Arduino IDE —<br>
+        Boards Manager → search <strong style="color:var(--text2);">esp32</strong> → install Espressif ·
+        Library Manager → install <strong style="color:var(--text2);">FastLED</strong> ·
+        Board → select <strong style="color:var(--text2);">ESP32 Dev Module with Correct COM port</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ TRUST TILES ══ -->
+  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="section" style="border:none;">
+      <div class="trust-grid">
+        <div class="trust-tile">
+          <span class="trust-icon">💬</span>
+          <div class="trust-title">Priority WhatsApp Support</div>
+          <div class="trust-desc">Direct access to the engineer who wrote every line. Specific answers, not forum links.
+          </div>
+        </div>
+        <div class="trust-tile">
+          <span class="trust-icon">📦</span>
+          <div class="trust-title">Ships in 1 Business Day</div>
+          <div class="trust-desc">Tested before dispatch. Shipped from Ahmedabad with tracking.</div>
+        </div>
+        <div class="trust-tile">
+          <span class="trust-icon">🔒</span>
+          <div class="trust-title">No Cloud. No Account.</div>
+          <div class="trust-desc">Firmware flashes locally over USB. Nothing leaves your machine.</div>
+        </div>
+        <div class="trust-tile">
+          <span class="trust-icon">📄</span>
+          <div class="trust-title">Full Pinout Docs</div>
+          <div class="trust-desc">Standard GPIO mapping. Every ESP32 tutorial on the internet applies.</div>
+        </div>
+      </div>
+      <div class="payment-row">
+        <span class="payment-inline" style="font-family:'IBM Plex Mono',monospace;">Checkout via</span>
+        <span class="pay-badge">Instamojo</span>
+        <span class="pay-badge">UPI</span>
+        <span class="pay-badge">Cards</span>
+        <span class="pay-badge">Net Banking</span>
+        <span class="payment-inline">· No account required</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FAQ ══ -->
+  <div id="faq" style="background:var(--bg);">
+    <div class="section" style="border:none;">
+      <div class="section-label">FAQ</div>
+      <h2 style="margin-bottom:40px;">Common questions</h2>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Will this work on my laptop? Where is Driver?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Open logicstudio.co.in Chrome or Edge on any Windows, Mac, or Linux desktop. Go to the Flash page. Plug in the micro-USB cable (with data transfer capacity). Chrome will ask you to select a COM port — pick the one that appears when you plug in the board. That's it. No software to install, no lib. to hunt, no admin password needed. If you're on Windows and no port appears, install the driver here: <a href="https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip" target="_blank" rel="noopener noreferrer">Download CP210x Universal Windows Driver</a>.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Can I write my own code on this hardware?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Yes. The HAT detaches from the ESP32 via standard female headers. Our firmware runs
+              on the included ESP32 — plug the HAT into any ESP32 project you build. Arduino IDE, ESP-IDF, MicroPython —
+              all work. Nothing is locked to Logic Studio.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Why not just buy a ESP for ₹450?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">A bare ESP32 is just a blank board with no clear starting point. Jumper wiring adds friction and debugging overhead, delaying actual learning.
+FLUX delivers 12 ready working models on a dual-layer FR4 PCB, prebuilt firmware, acrylic enclosure, data cable, a multi-component system, and 10 days of direct support. A ₹450 board does not offer this level of experience.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">What if I need help after the 10 days?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">For basics, standard ESP32 tutorials or any AI tool are sufficient. For FLUX-specific workflows, use the AI Coder page to generate code instantly. If you're stuck, describe the issue clearly in the Flash page’s “Talk to Builder” section.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Does any of my data go to a server?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">No. The flash tool runs entirely in your browser over USB. No cloud connection, no
+              account, no telemetry of any kind. The firmware also flashes locally — no binary is uploaded to any server
+              during the process.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Is ₹1,999 reasonable for a student budget?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">A basic ESP32 gives you a blank board and hours of setup frustration. 
+              You may find none of comparable kit from any Indian edtech brand which can give this learing experiance at this price point
+              FLUX guarantees your engagement from Day 1.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FINAL CTA ══ -->
+  <div class="final-cta">
+    <h2>Ready to stop<br>reading and start building?</h2>
+    <p class="final-cta-sub">FLUX v1 · Acrylic-enclosed HAT · Pre-flashed ESP32 · Micro-USB cable · 12 functions ·
+      Priority support</p>
+    <div class="final-price-block">
+      <div class="final-price">₹1,999</div>
+      <div class="final-price-note">Complete kit · Shipping included</div>
+    </div>
+    <a href="https://www.instamojo.com" target="_blank" rel="noopener noreferrer" class="btn-primary"
+      style="font-size:15px;padding:16px 40px;">Order on Instamojo →</a>
+    <div class="final-micros">
+      <span>Ships in 2 business day</span>
+      <span>WhatsApp support included</span>
+      <span>No account required</span>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <div class="footer-brand">
+      Logic Studio · <a href="https://logicstudio.co.in">logicstudio.co.in</a> · Ahmedabad
+    </div>
+    <ul class="footer-links">
+      <li><a href="flash/">FLUX Console</a></li>
+      <li><a href="#ai-coder">AI Coder</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </footer>
+
+  <!-- ══ WHATSAPP FLOAT ══ -->
+  <a class="wa-float" href="https://wa.me/919427179868?text=Hi%2C%20I%E2%80%99m%20interested%20in%20FLUX%20v1."
+    target="_blank" rel="noopener noreferrer" title="Ask on WhatsApp">
+    <div class="wa-btn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+      </svg>
+    </div>
+    <div class="wa-label">Ask a question</div>
+  </a>
+
+  <script>
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const answer = item.querySelector('.faq-a');
+      const isOpen = item.classList.contains('open');
+
+      document.querySelectorAll('.faq-item.open').forEach(el => {
+        el.classList.remove('open');
+        el.querySelector('.faq-a').style.maxHeight = '0';
+      });
+
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    }
+
+    // Staggered fade-in for function cards
+    const cards = document.querySelectorAll('.fn-card');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, (parseInt(entry.target.dataset.i) || 0) * 40);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    function copyFluxPrompt(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const input = document.getElementById('ai-prompt-input');
+      const idea = input && typeof input.value === 'string' ? input.value.trim() : '';
+      const prefix = 'I have a FLUX v1 ESP32 board. Pins: LED_PIN=12, POT_PIN=27, NUM_LEDS=7, BTN_PIN=34, BUZZER_PIN=25, LDR_PIN=35, MIC on I2S (WS=15, SCK=14, SD=32). Use FastLED for LEDs. Write Arduino code for: ';
+      const full = idea ? prefix + idea : prefix + '(describe your idea here)';
+
+      const showCopied = () => {
+        const c = document.getElementById('ai-copy-confirm');
+        if (!c) return;
+        c.style.opacity = '1';
+        setTimeout(() => c.style.opacity = '0', 2500);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(full).then(showCopied).catch(() => {
+          const temp = document.createElement('textarea');
+          temp.value = full;
+          temp.setAttribute('readonly', '');
+          temp.style.position = 'absolute';
+          temp.style.left = '-9999px';
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand('copy');
+          document.body.removeChild(temp);
+          showCopied();
+        });
+        return;
+      }
+
+      const temp = document.createElement('textarea');
+      temp.value = full;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'absolute';
+      temp.style.left = '-9999px';
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showCopied();
+    }
+
+    cards.forEach((card, i) => {
+      card.dataset.i = i;
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(12px)';
+      card.style.transition = 'opacity 0.4s ease, transform 0.4s ease, background 0.2s';
+      obs.observe(card);
+    });
+  </script>
+</body>
+
+</html>
