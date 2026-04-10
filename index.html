@@ -1280,6 +1280,48 @@
       content: '';
     }
 
+    .final-contact-strip {
+      margin: 20px auto 0;
+      max-width: 520px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .final-contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text2);
+      text-decoration: none;
+      font-size: var(--fs-body);
+      line-height: 1.5;
+      transition: color 0.2s;
+    }
+
+    .final-contact-link:hover {
+      color: var(--text);
+    }
+
+    .final-contact-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .final-contact-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
     /* ── FOOTER ── */
     footer {
       padding: 28px 56px;
@@ -1457,6 +1499,11 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
+      .final-contact-strip {
+        max-width: 560px;
+        gap: 16px;
+      }
+
       footer {
         flex-direction: column;
         gap: 12px;
@@ -1503,6 +1550,17 @@
 
       .proof-pill {
         min-width: 100%;
+      }
+
+      .final-contact-strip {
+        max-width: 300px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .final-contact-link {
+        font-size: var(--fs-body-mobile);
       }
     }
   </style>
@@ -1902,9 +1960,10 @@ FLUX delivers 12 ready working models on a dual-layer FR4 PCB, prebuilt firmware
             <span class="faq-icon">+</span>
           </button>
           <div class="faq-a">
-            <div class="faq-a-inner">A basic ESP32 gives you a blank board and hours of setup frustration. 
-              You may find none of comparable kit from any Indian edtech brand which can give this learing experiance at this price point
-              FLUX guarantees your engagement from Day 1.</div>
+            <div class="faq-a-inner">While basic kits provide raw components, FLUX provides an immediate learning
+              experience. You are paying for 12 integrated, real-world gadget functions protected by a custom acrylic
+              enclosure. In the Indian ed-tech space, no other kit offers this level of polished, Day-1 engagement at this
+              price point.</div>
           </div>
         </div>
 
@@ -1927,6 +1986,26 @@ FLUX delivers 12 ready working models on a dual-layer FR4 PCB, prebuilt firmware
       <span>Ships in 2 business day</span>
       <span>WhatsApp support included</span>
       <span>No account required</span>
+    </div>
+    <div class="final-contact-strip" aria-label="Contact options">
+      <a class="final-contact-link" href="tel:+919427179868" aria-label="Call 9427179868">
+        <span class="final-contact-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.11.37 2.3.56 3.51.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.85 21 3 13.15 3 3.99a1 1 0 0 1 1-1H7.5a1 1 0 0 1 1 1c0 1.21.19 2.4.56 3.51a1 1 0 0 1-.24 1.01l-2.2 2.28z" />
+          </svg>
+        </span>
+        <span>9427179868</span>
+      </a>
+      <a class="final-contact-link" href="mailto:info@logicstudio.co.in" aria-label="Email info@logicstudio.co.in">
+        <span class="final-contact-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm2 0v.01L12 9l6-3.99V5H6zm12 3.24-5.45 3.62a1 1 0 0 1-1.1 0L6 8.24V19h12V8.24z" />
+          </svg>
+        </span>
+        <span>info@logicstudio.co.in</span>
+      </a>
     </div>
   </div>
 
